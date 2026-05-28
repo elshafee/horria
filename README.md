@@ -1,4 +1,4 @@
-# Horria_T — Lepu PC303 Medical Dashboard
+# Horria — Lepu PC303 Medical Dashboard
 
 > A professional-grade Flutter application for real-time vital sign monitoring via the Lepu/Creative Medical PC303 multi-parameter Bluetooth monitor.
 
