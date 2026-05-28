@@ -10,11 +10,6 @@
 
 Built for fixed-device deployments such as dedicated clinical stations or home-care setups, the app connects automatically to a pre-configured hardware address at startup and streams telemetry in real time.
 
----
-
-## Screenshots
-
-> *(Add screenshots of the ECG monitor, vital signs dashboard, and data log console here.)*
 
 ---
 
