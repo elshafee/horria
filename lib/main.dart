@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:horria_t/auth/auth_main.dart';
+import 'package:horria_t/onboarding/splash_screen.dart';
+import 'auth/login/login_screen.dart';
+import 'auth/register/register.dart';
+import 'dashboard/dashboard.dart';
 import 'ecg_painter.dart';
 import 'lepu_service.dart';
+import 'onboarding/select_language.dart';
 
 void main() {
   runApp(const LepuApp());
@@ -23,7 +29,16 @@ class LepuApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const DashboardPage(),
+      routes: {
+        '/splash' : (context) => SplashScreen(),
+        '/language' : (context) => LanguageSelectionScreen(),
+        '/main_auth' : (context) => AuthMainScreen(),
+        '/login' : (context) => LoginScreen(),
+        '/register' : (context) => const RegisterScreen(),
+        '/dashboard' : (context) => const HomeScreen(),
+      },
+      home: const SplashScreen(),
+      // home: const HomeScreen(),
     );
   }
 }
@@ -38,13 +53,13 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   String _status = 'Disconnected';
   String _battery = '--%';
-  
+
   // Telemetry Data
   int _heartRate = 0;
   int _spo2 = 0;
   double _pi = 0.0;
   String _bpResult = '-- / --';
-  
+
   final List<double> _ecgPoints = [];
   final int _maxEcgPoints = 1000; // Large enough to fill any screen width
 
