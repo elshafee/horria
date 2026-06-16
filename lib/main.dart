@@ -37,8 +37,8 @@ class LepuApp extends StatelessWidget {
         '/register' : (context) => const RegisterScreen(),
         '/dashboard' : (context) => const HomeScreen(),
       },
-      home: const SplashScreen(),
-      // home: const HomeScreen(),
+      // home: const SplashScreen(),
+      home: const HomeScreen(),
     );
   }
 }
