@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:horria_t/auth/auth_main.dart';
 import 'package:horria_t/onboarding/splash_screen.dart';
+import 'package:horria_t/vital%20sign/vital_sig_home.dart';
 import 'auth/login/login_screen.dart';
 import 'auth/register/register.dart';
 import 'dashboard/dashboard.dart';
 import 'ecg_painter.dart';
 import 'lepu_service.dart';
-import 'onboarding/select_language.dart';
+import 'core/routes/app_router.dart';
 
 void main() {
   runApp(const LepuApp());
@@ -29,16 +30,8 @@ class LepuApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      routes: {
-        '/splash' : (context) => SplashScreen(),
-        '/language' : (context) => LanguageSelectionScreen(),
-        '/main_auth' : (context) => AuthMainScreen(),
-        '/login' : (context) => LoginScreen(),
-        '/register' : (context) => const RegisterScreen(),
-        '/dashboard' : (context) => const HomeScreen(),
-      },
-      // home: const SplashScreen(),
-      home: const HomeScreen(),
+      initialRoute: AppRouter.splash,
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }

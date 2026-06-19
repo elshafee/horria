@@ -11,7 +11,7 @@ class SplashScreen extends StatelessWidget {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/images/splash.png',
+              'assets/images/onboarding/splash.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -30,7 +30,7 @@ class SplashScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Image.asset(
-                            'assets/images/horria_ar.png',
+                            'assets/images/onboarding/horria_ar.png',
                             height: 70,
                           ),
 

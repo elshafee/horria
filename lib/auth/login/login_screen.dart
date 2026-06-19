@@ -1,7 +1,119 @@
 import 'package:flutter/material.dart';
+import 'package:horria_t/core/routes/app_router.dart';
+import 'package:horria_t/core/network/face_auth_service.dart';
+import 'package:horria_t/core/network/auth_store.dart';
+import 'package:camera/camera.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final FaceAuthService _faceAuthService = FaceAuthService();
+  bool _isVerifying = false;
+  CameraController? _cameraController;
+  bool _isCameraInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initCamera();
+  }
+
+  Future<void> _initCamera() async {
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) return;
+      
+      final frontCamera = cameras.firstWhere(
+        (c) => c.lensDirection == CameraLensDirection.front, 
+        orElse: () => cameras.first
+      );
+      
+      _cameraController = CameraController(frontCamera, ResolutionPreset.medium);
+      await _cameraController!.initialize();
+      if (mounted) {
+        setState(() {
+          _isCameraInitialized = true;
+        });
+      }
+    } catch (e) {
+      debugPrint("Camera initialization error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _verifyFace() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('الكاميرا غير متاحة')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isVerifying = true;
+    });
+
+    try {
+      final image = await _cameraController!.takePicture();
+      final imageBytes = await image.readAsBytes();
+
+      final result = await _faceAuthService.verifyFace(imageBytes);
+
+      if (!mounted) return;
+
+      if (result.isSuccess) {
+        // Only navigate if backend explicitly approves the face
+        AuthStore().setSession(
+          result.token, 
+          id: result.userId,
+          name: result.userName, 
+          userGreeting: result.greeting,
+        );
+        Navigator.of(context).pushNamed(AppRouter.dashboard);
+      } else {
+        // Show error message from backend
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result.errorMessage ?? 'فشل التحقق من الوجه. يرجى المحاولة مرة أخرى.',
+              style: const TextStyle(fontSize: 16, color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'حدث خطأ في الاتصال: $e',
+            style: const TextStyle(fontSize: 16, color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isVerifying = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +126,7 @@ class LoginScreen extends StatelessWidget {
           // Background
           Positioned.fill(
             child: Image.asset(
-              'assets/images/background.png',
+              'assets/images/common/background.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -38,7 +150,7 @@ class LoginScreen extends StatelessWidget {
                   Align(
                     alignment: Alignment.topLeft,
                     child: TextButton.icon(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: _isVerifying ? null : () => Navigator.pop(context),
                       icon: const Icon(
                         Icons.arrow_back_ios,
                         color: primaryColor,
@@ -82,12 +194,19 @@ class LoginScreen extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-
-                          Image.asset(
-                            'assets/images/face-recognition.png',
-                            fit: BoxFit.cover,
+                          Container(
+                            width: 250,
+                            height: 250,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: primaryColor, width: 4),
+                            ),
+                            child: ClipOval(
+                              child: _isCameraInitialized
+                                  ? CameraPreview(_cameraController!)
+                                  : const Center(child: CircularProgressIndicator()),
+                            ),
                           ),
-
 
                           const SizedBox(height: 40),
 
@@ -102,16 +221,27 @@ class LoginScreen extends StatelessWidget {
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Icon(
-                                  Icons.verified_user,
-                                  color: primaryColor,
-                                ),
-                                SizedBox(width: 12),
+                              children: [
+                                _isVerifying
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: primaryColor,
+                                          strokeWidth: 2.5,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.verified_user,
+                                        color: primaryColor,
+                                      ),
+                                const SizedBox(width: 12),
                                 Flexible(
                                   child: Text(
-                                    'جاري التحقق من الوجه... يرجى عدم تحريك وجهك',
-                                    style: TextStyle(
+                                    _isVerifying 
+                                        ? 'يتم التواصل مع الخادم...'
+                                        : 'جاري التحقق من الوجه... يرجى عدم تحريك وجهك',
+                                    style: const TextStyle(
                                       color: Color(0xFF5B4A6E),
                                       fontSize: 16,
                                     ),
@@ -127,21 +257,31 @@ class LoginScreen extends StatelessWidget {
                             width: 360,
                             height: 60,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: _isVerifying ? null : _verifyFace,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColor,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(18),
                                 ),
+                                disabledBackgroundColor: primaryColor.withOpacity(0.5),
                               ),
-                              child: const Text(
-                                'تحقق',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              child: _isVerifying
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'تحقق',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],

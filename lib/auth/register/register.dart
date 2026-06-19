@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../core/network/auth_service.dart';
+import '../../core/network/auth_store.dart';
+import 'package:camera/camera.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -19,6 +22,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Step 2 State
   bool imageCaptured = false;
+  CameraController? _cameraController;
+  bool _isCameraInitialized = false;
+  List<int> capturedImageBytes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initCamera();
+  }
+
+  Future<void> _initCamera() async {
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) return;
+      
+      final frontCamera = cameras.firstWhere(
+        (c) => c.lensDirection == CameraLensDirection.front, 
+        orElse: () => cameras.first
+      );
+      
+      _cameraController = CameraController(frontCamera, ResolutionPreset.medium);
+      await _cameraController!.initialize();
+      if (mounted) {
+        setState(() {
+          _isCameraInitialized = true;
+        });
+      }
+    } catch (e) {
+      debugPrint("Camera init error in register: $e");
+    }
+  }
 
   // Step 3 State
   List<String> selectedConditions = [];
@@ -32,12 +66,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     "لا يوجد",
   ];
   final List<bool?> answers = [null];
+  
+  bool isSubmitting = false;
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
     fullNameController.dispose();
     ageController.dispose();
     phoneController.dispose();
+    _cameraController?.dispose();
     super.dispose();
   }
 
@@ -72,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             if (_currentStep != 3)
               Positioned.fill(
                 child: Image.asset(
-                  'assets/images/background.png',
+                  'assets/images/common/background.png',
                   fit: BoxFit.cover,
                 ),
               ),
@@ -171,6 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 _textField(
                                   controller: ageController,
                                   hint: "أدخل العمر",
+                                  keyboardType: TextInputType.number,
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return "يرجى إدخال العمر";
@@ -194,6 +233,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 _textField(
                                   controller: phoneController,
                                   hint: "01xxxxxxxxxx",
+                                  keyboardType: TextInputType.phone,
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return "يرجى إدخال رقم الهاتف";
@@ -349,14 +389,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         child: Stack(
                           children: [
-                            if (imageCaptured)
+                            if (_isCameraInitialized && !imageCaptured)
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(22),
-                                child: Image.asset(
-                                  "assets/images/person.jpg",
+                                child: SizedBox(
                                   width: double.infinity,
                                   height: double.infinity,
-                                  fit: BoxFit.cover,
+                                  child: CameraPreview(_cameraController!),
+                                ),
+                              )
+                            else if (imageCaptured)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(22),
+                                ),
+                                child: const Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.check_circle, color: Colors.green, size: 80),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "تم التقاط الصورة بنجاح",
+                                        style: TextStyle(fontSize: 24, color: Colors.green, fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                             _corner(Alignment.topLeft),
@@ -398,9 +457,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             backgroundColor: purpleColor,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (!imageCaptured) {
-                              setState(() => imageCaptured = true);
+                              if (_cameraController != null && _cameraController!.value.isInitialized) {
+                                try {
+                                  final image = await _cameraController!.takePicture();
+                                  final bytes = await image.readAsBytes();
+                                  setState(() {
+                                    capturedImageBytes = bytes;
+                                    imageCaptured = true;
+                                  });
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('حدث خطأ أثناء التقاط الصورة: $e')),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('الكاميرا غير جاهزة بعد')),
+                                );
+                              }
                             } else {
                               _nextStep();
                             }
@@ -539,13 +615,60 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 backgroundColor: const Color(0xff644090),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/dashboard');
+              onPressed: isSubmitting ? null : () async {
+                setState(() => isSubmitting = true);
+                
+                try {
+                  // Format medical history dictionary
+                  Map<String, dynamic> medicalHistory = {};
+                  if (answers[0] == true) {
+                    for (var condition in selectedConditions) {
+                      medicalHistory[condition] = true;
+                    }
+                  }
+
+                  final result = await _authService.signup(
+                    name: fullNameController.text.trim(),
+                    age: int.tryParse(_convertArabicNumbers(ageController.text.trim())) ?? 0,
+                    phone: phoneController.text.trim(),
+                    gender: _gender,
+                    imageBytes: capturedImageBytes,
+                    medicalHistory: medicalHistory,
+                  );
+
+                  if (!mounted) return;
+
+                  if (result.isSuccess) {
+                    AuthStore().setSession(
+                      result.token,
+                      id: result.userId,
+                      name: result.userName,
+                      userGreeting: result.greeting,
+                    );
+                    Navigator.pushNamed(context, '/dashboard');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(result.errorMessage ?? "فشل التسجيل"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() => isSubmitting = false);
+                  }
+                }
               },
-              child: const Text(
-                "إتمام التسجيل",
-                style: TextStyle(fontSize: 24, color: Colors.white),
-              ),
+              child: isSubmitting 
+                  ? const SizedBox(
+                      width: 24, height: 24, 
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)
+                    )
+                  : const Text(
+                      "إتمام التسجيل",
+                      style: TextStyle(fontSize: 24, color: Colors.white),
+                    ),
             ),
           ),
           const SizedBox(height: 30),
@@ -704,12 +827,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     TextEditingController? controller,
     String? hint,
     String? Function(String?)? validator,
+    TextInputType? keyboardType,
   }) {
     return SizedBox(
       height: 58,
       child: TextFormField(
         controller: controller,
         validator: validator,
+        keyboardType: keyboardType,
         textAlign: TextAlign.right,
         style: const TextStyle(color: Colors.black),
         decoration: InputDecoration(

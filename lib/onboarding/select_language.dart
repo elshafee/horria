@@ -22,7 +22,7 @@ class _LanguageSelectionScreenState
           /// Background
           Positioned.fill(
             child: Image.asset(
-              'assets/images/background.png',
+              'assets/images/common/background.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -36,7 +36,7 @@ class _LanguageSelectionScreenState
 
                   /// Logo
                   Image.asset(
-                    'assets/images/horria_ar.png',
+                    'assets/images/onboarding/horria_ar.png',
                     height: 70,
                   ),
 
@@ -95,10 +95,10 @@ class _LanguageSelectionScreenState
                         if (selectedLanguage == 'ar') {
                           print('Arabic Selected');
                         //   main_auth
-                          Navigator.of(context).pushNamed('/main_auth');
+                          Navigator.of(context).pushNamed('/auth_main');
                         } else {
                           print('English Selected');
-                          Navigator.of(context).pushNamed('/main_auth');
+                          Navigator.of(context).pushNamed('/auth_main');
 
                         }
 

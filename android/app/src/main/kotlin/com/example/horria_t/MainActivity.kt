@@ -403,8 +403,31 @@ class MainActivity : FlutterFragmentActivity(), BleChangeObserver {
 //      ECG Result
         LiveEventBus.get<InterfaceEvent>(InterfaceEvent.PC300.EventPc300EcgResult)
             .observe(this) {
-                val data = it.data as EcgResult
-                sendToFlutter("ecgResult", data)
+                try {
+                    val data = it.data
+                    if (data is EcgResult) {
+                        val ecgDataMap = mapOf("hr" to data.hr, "result" to data.result, "resultMess" to data.resultMess)
+                        sendToFlutter("ecgResult", ecgDataMap)
+                    } else if (data is Array<*>) {
+                        if (data.isNotEmpty() && data[0] is EcgResult) {
+                            val first = data[0] as EcgResult
+                            val ecgDataMap = mapOf("hr" to first.hr, "result" to first.result, "resultMess" to first.resultMess)
+                            sendToFlutter("ecgResult", ecgDataMap)
+                        } else {
+                            sendToFlutter("status", "ecgResult data empty or unknown array")
+                        }
+                    } else if (data is List<*>) {
+                        if (data.isNotEmpty() && data[0] is EcgResult) {
+                            val first = data[0] as EcgResult
+                            val ecgDataMap = mapOf("hr" to first.hr, "result" to first.result, "resultMess" to first.resultMess)
+                            sendToFlutter("ecgResult", ecgDataMap)
+                        }
+                    } else {
+                        sendToFlutter("status", "ecgResult unknown format")
+                    }
+                } catch (e: Exception) {
+                    sendToFlutter("status", "ecgResult err: ${e.message}")
+                }
             }
 
 

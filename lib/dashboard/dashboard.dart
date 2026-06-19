@@ -1,45 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:horria_t/core/routes/app_router.dart';
+import '../presentation/global_widgets/sdui_sidebar.dart';
+import '../core/network/auth_store.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
-
-  static Widget _sideIcon(
-      String path, {
-        bool selected = false,
-      }) {
-    return Container(
-      width: 70,
-      height: 70,
-      decoration: BoxDecoration(
-        color: selected
-            ? const Color(0xffFF6EA8)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Padding(
-        padding: EdgeInsetsGeometry.all(5),
-        child: Image.asset(
-          path,
-        ),
-      ),
-    );
-  }
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String _getMonthName(int month) {
+    const months = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    return months[month - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final dateStr = '${now.day} ${_getMonthName(now.month)} ${now.year}';
+    final timeStr = '${now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour)}:${now.minute.toString().padLeft(2, '0')} ${now.hour >= 12 ? 'م' : 'ص'}';
+
     return Scaffold(
+      backgroundColor: Colors.transparent, // Allow shell background to show if any
       body: SafeArea(
         child: Stack(
+          clipBehavior: Clip.none, // Allow background to bleed under sidebar area
           children: [
-      
-            Positioned.fill(
+            // Background covers the whole screen (under the sidebar too)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: -105, // Extend background under the sidebar
               child: Image.asset(
-                'assets/images/home_page_background.png',
+                'assets/images/dashboard/home_page_background.png',
                 fit: BoxFit.cover,
               ),
             ),
@@ -74,14 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       
             /// Date
-            const Positioned(
+            Positioned(
               top: 60,
               right: 220,
-              child: Text(
-                '15 مايو 2026 | تاريخ اليوم',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.black54,
+              child:  Text(
+                'اليوم: $dateStr | $timeStr',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
                 ),
               ),
             ),
@@ -98,13 +97,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: const Color(0xffF7DDE8),
                   borderRadius: BorderRadius.circular(25),
                 ),
-                child: const Text(
-                  'أهلاً يا إسراء ... جاهزة لمساعدتك في متابعة صحتك',
-                  style: TextStyle(
-                    fontSize: 26,
+                child: Text(
+                  AuthStore().greeting ?? 'أهلاً بك ... جاهزة لمساعدتك في متابعة صحتك',
+                  style: const TextStyle(
+                    fontSize: 22,
                     color: Color(0xff684293),
                     fontWeight: FontWeight.w600,
                   ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -150,8 +152,9 @@ class _HomeScreenState extends State<HomeScreen> {
               left: 30,
               top: 470,
               child: _ServiceCard(
-                image: 'assets/images/clinic.png',
+                image: 'assets/images/common/clinic.png',
                 title: 'العيادات',
+                route: AppRouter.clinicsList,
               ),
             ),
       
@@ -159,8 +162,9 @@ class _HomeScreenState extends State<HomeScreen> {
               left: 410,
               top: 470,
               child: _ServiceCard(
-                image: 'assets/images/diagnoses.png',
+                image: 'assets/images/common/diagnoses.png',
                 title: 'تشخيص الأمراض',
+                route: AppRouter.aiInterview,
               ),
             ),
       
@@ -168,70 +172,9 @@ class _HomeScreenState extends State<HomeScreen> {
               left: 790,
               top: 470,
               child: _ServiceCard(
-                image: 'assets/images/vital_sign.png',
+                image: 'assets/images/common/vital_sign.png',
                 title: 'قياس الإشارات الحيوية',
-              ),
-            ),
-      
-            /// Right Sidebar
-            Positioned(
-              top: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                width: 105,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF563B7E),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(35),
-                    bottomLeft: Radius.circular(35),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 30),
-      
-                    // HomeScreen._sideIcon(""),
-      
-                    Image.asset("assets/images/robot_icon.png"),
-      
-      
-                    const SizedBox(height: 90),
-      
-                    HomeScreen._sideIcon(
-                      "assets/images/home_icon.png",
-                      selected: true,
-                    ),
-      
-                    const SizedBox(height: 60),
-                    HomeScreen._sideIcon(
-                      "assets/images/diagnoses_icon.png",
-                      selected: false,
-                    ),
-      
-                    // HomeScreen._sideIcon(Icons.monitor_heart_outlined),
-      
-                    // const SizedBox(height: 60),
-                    const SizedBox(height: 60),
-                    HomeScreen._sideIcon(
-                      "assets/images/history_icon.png",
-                      selected: false,
-                    ),
-      
-                    // HomeScreen._sideIcon(Icons.medical_services_outlined),
-      
-                    const Spacer(),
-                    const SizedBox(height: 60),
-                    HomeScreen._sideIcon(
-                      "assets/images/logout_icon.png",
-                      selected: false,
-                    ),
-      
-                    // HomeScreen._sideIcon(Icons.logout),
-      
-                    const SizedBox(height: 40),
-                  ],
-                ),
+                route: AppRouter.vitalSignsHome,
               ),
             ),
           ],
@@ -244,57 +187,66 @@ class _HomeScreenState extends State<HomeScreen> {
 class _ServiceCard extends StatelessWidget {
   final String image;
   final String title;
+  final String route;
 
   const _ServiceCard({
     required this.image,
     required this.title,
+    required this.route,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 360,
-      height: 220,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-          )
-        ],
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: Center(
-              child: Image.asset(
-                image,
-                width: 150,
+    return InkWell(
+      onTap: (){
+        Navigator.of(context).pushNamed(route);
+      },
+      child: Container(
+        width: 360,
+        height: 220,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+            )
+          ],
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: Image.asset(
+                  image,
+                  // width: 300,
+                  // height: 180,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Container(
-            height: 65,
-            decoration: const BoxDecoration(
-              color: Color(0xFF563B7E),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(22),
-                bottomRight: Radius.circular(22),
+            Container(
+              height: 65,
+              decoration: const BoxDecoration(
+                color: Color(0xFF563B7E),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(22),
+                  bottomRight: Radius.circular(22),
+                ),
               ),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
+              alignment: Alignment.center,
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

@@ -13,7 +13,7 @@ class AuthMainScreen extends StatelessWidget {
           // Background with transparency
           Positioned.fill(
             child: Image.asset(
-              'assets/images/background.png',
+              'assets/images/common/background.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -36,7 +36,7 @@ class AuthMainScreen extends StatelessWidget {
                   const SizedBox(height: 100),
 
                   // Logo
-                  Image.asset('assets/images/horria_ar.png', height: 70),
+                  Image.asset('assets/images/onboarding/horria_ar.png', height: 70),
 
                   const SizedBox(height: 5),
 
