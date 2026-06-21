@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5211b4e2-5ab1-4cb9-95f7-333a9488fef1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../lib/core/network/api_config.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/testprint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/.filecache" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/.filecache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/app.dill" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/app.dill" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/debug_android_application.stamp" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/debug_android_application.stamp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/flutter_assets.d" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/flutter_assets.d" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/kernel_snapshot_program.d" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/kernel_snapshot_program.d" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/kernel_snapshot_program.stamp" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/kernel_snapshot_program.stamp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/core/network/auth_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/core/network/auth_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/core/network/face_auth_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/core/network/face_auth_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/core/network/user_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/core/network/user_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/core/network/vitals_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/core/network/vitals_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/views/diagnosis/ai_interview_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/diagnosis/ai_interview_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/views/diagnosis/diagnosis_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/diagnosis/diagnosis_home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/views/diagnosis/diagnosis_loading_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/diagnosis/diagnosis_loading_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/views/measurements/measurement_instruction_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/measurements/measurement_instruction_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/views/measurements/measurement_measuring_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/measurements/measurement_measuring_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/views/measurements/measurement_popup_dialog.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/measurements/measurement_popup_dialog.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/views/monitor/diagnoses_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/monitor/diagnoses_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/llm_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/llm_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/printer.py" beforeDir="false" afterPath="$PROJECT_DIR$/printer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prompts.py" beforeDir="false" afterPath="$PROJECT_DIR$/prompts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tts.py" beforeDir="false" afterPath="$PROJECT_DIR$/tts.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="25" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0063898683318346" />
+      <entry key="MS500" value="1.3883128138926735" />
+      <entry key="S2" value="2.203646128604487" />
+      <entry key="S5" value="3.0396488652875395" />
+      <entry key="S10" value="4.091398332706424" />
+      <entry key="S30" value="6.008819839900646" />
+      <entry key="S60" value="6.870102676469918" />
+      <entry key="M2" value="7.417140650227501" />
+      <entry key="M5" value="8.434943886924623" />
+      <entry key="M10" value="10.064410822560014" />
+      <entry key="M15" value="11.142423823639524" />
+      <entry key="M30" value="12.734120434378577" />
+      <entry key="H1" value="14.240964438170556" />
+      <entry key="H2" value="16.824120201292416" />
+      <entry key="H4" value="21.018655695625494" />
+      <entry key="D1" value="31.171650957578738" />
+      <entry key="W1" value="34.394722065344126" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="4.6090791416736895E-188" />
+      <entry key="M2" value="3.035617754482925E-94" />
+      <entry key="M5" value="5.936067439978889E-38" />
+      <entry key="M10" value="3.44557263834714E-19" />
+      <entry key="M15" value="6.192275519757056E-13" />
+      <entry key="M30" value="1.1128581231159292E-6" />
+      <entry key="H1" value="0.0014918831696148856" />
+      <entry key="H2" value="0.05462385973970455" />
+      <entry key="H4" value="0.3305264238425537" />
+      <entry key="D1" value="1.4815831374061812" />
+      <entry key="W1" value="1.916086640670022" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9131595112395742" />
+      <entry key="MS500" value="1.359522027799937" />
+      <entry key="S2" value="2.191320337202873" />
+      <entry key="S5" value="3.032613066891834" />
+      <entry key="S10" value="4.086515745688676" />
+      <entry key="S30" value="6.00632740808752" />
+      <entry key="S60" value="6.868657306255747" />
+      <entry key="M2" value="7.416352163333768" />
+      <entry key="M5" value="8.434556113632977" />
+      <entry key="M10" value="10.064151071763185" />
+      <entry key="M15" value="11.142221165172785" />
+      <entry key="M30" value="12.733998512545778" />
+      <entry key="H1" value="14.242385319363539" />
+      <entry key="H2" value="16.878689641619626" />
+      <entry key="H4" value="21.349116012898026" />
+      <entry key="D1" value="32.65319721865422" />
+      <entry key="W1" value="36.31080205692887" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3FJjQD7GOAFqdBAvbopReoeoGwR" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.tts.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;flutter__version&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/ahmadkhaled/Documents/GitHub/horria/orchestrator&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="tts" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="orchestrator" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tts.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-c59985aa861c-c2ffad84badb-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.24374.152" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5211b4e2-5ab1-4cb9-95f7-333a9488fef1" name="Changes" comment="" />
+      <created>1781800047362</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1781800047362</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
