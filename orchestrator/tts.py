@@ -10,7 +10,7 @@ logger = logging.getLogger("tts")
 
 VOICE_AR = "ar-EG-SalmaNeural"
 VOICE_EN = "en-US-AriaNeural"
-ALSA_DEVICE = "plughw:0,3"
+ALSA_DEVICE = "plughw:1,0"
 
 
 async def _generate_speech_async(text: str, voice: str, output_path: str):
@@ -20,13 +20,20 @@ async def _generate_speech_async(text: str, voice: str, output_path: str):
 
 
 def _generate_blocking(text: str, voice: str, output_path: str):
+    import threading
+    
+    def _run_in_thread():
+        # This thread has no event loop, so asyncio.run is safe
+        asyncio.run(_generate_speech_async(text, voice, output_path))
+        
     try:
         loop = asyncio.get_running_loop()
-        import concurrent.futures
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            future = pool.submit(asyncio.run, _generate_speech_async(text, voice, output_path))
-            future.result(timeout=30)
+        # We are inside an event loop, must spawn a thread
+        t = threading.Thread(target=_run_in_thread)
+        t.start()
+        t.join(timeout=30)
     except RuntimeError:
+        # Not inside an event loop, safe to run directly
         asyncio.run(_generate_speech_async(text, voice, output_path))
 
 

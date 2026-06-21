@@ -30,6 +30,7 @@ class LepuApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      // initialRoute: AppRouter.dashboard,
       initialRoute: AppRouter.splash,
       onGenerateRoute: AppRouter.generateRoute,
     );

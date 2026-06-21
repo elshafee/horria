@@ -5,6 +5,7 @@ import '../../core/routes/app_router.dart';
 import '../../models/diagnosis_result.dart';
 import '../../models/measurement_type.dart';
 import '../../core/network/auth_store.dart';
+import '../../core/network/api_config.dart';
 import 'diagnosis_layout.dart';
 
 class DiagnosisLoadingScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _DiagnosisLoadingScreenState extends State<DiagnosisLoadingScreen> with Si
     final client = HttpClient()..connectionTimeout = const Duration(seconds: 20);
     
     try {
-      final uri = Uri.parse('http://192.168.1.9:8000/diagnosis/analyze');
+      final uri = Uri.parse('${ApiConfig.baseUrl}/diagnosis/analyze');
       final request = await client.postUrl(uri);
       request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
       

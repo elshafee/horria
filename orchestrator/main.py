@@ -22,6 +22,13 @@ logger = logging.getLogger("main")
 
 app = FastAPI(title="Dr. Horria Orchestrator", version="1.0.0")
 
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Preloading LLaMA model...")
+    import llm
+    llm.preload()
+    logger.info("LLaMA model preloaded successfully.")
+
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
@@ -77,6 +84,7 @@ class LanguageRequest(BaseModel):
 class PrintAssessmentRequest(BaseModel):
     session_id: str
     user_id: int
+    vitals: Optional[Dict[str, Any]] = None
     ecg: Optional[Dict[str, Any]] = None
     assessment: Optional[Dict[str, Any]] = None
     recommendations: Optional[List[str]] = None
@@ -118,6 +126,11 @@ def build_login_success_payload(user: dict, resumed: bool, current_step: str) ->
 def get_health():
     logger.info("Health check ping received.")
     return {"status": "ok", "message": "Dr. Horria Orchestrator is running."}
+
+@app.get("/led/state")
+def get_led_state():
+    state = led_controller.get_current_led_state()
+    return {"state": state}
 
 @app.post("/auth/password-login")
 def password_login(req: PasswordLoginRequest):
@@ -333,21 +346,27 @@ def print_assessment(req: PrintAssessmentRequest):
     if not user_info:
         raise HTTPException(status_code=404, detail="User not found")
         
-    vitals_records = db.get_vitals_history(req.user_id, limit=1)
-    latest_vitals = vitals_records[0] if vitals_records else {}
+    if req.vitals:
+        vitals_dict = req.vitals
+        ecg_wave_data = req.vitals.get("ecg_wave")
+    else:
+        session_vitals = db.get_vitals_by_session(req.session_id)
+        latest_vitals = session_vitals if session_vitals else {}
+        vitals_dict = {
+            "heart_rate": latest_vitals.get('hr', 'N/A'),
+            "spo2": latest_vitals.get('spo2', 'N/A'),
+            "blood_pressure": f"{latest_vitals.get('sys', 'N/A')}/{latest_vitals.get('dia', 'N/A')}",
+            "temp": latest_vitals.get('temp', 'N/A')
+        }
+        ecg_wave_data = latest_vitals.get("ecg_wave")
     
     data = {
         "name": user_info['name'],
         "age": f"{user_info.get('age', 'Unknown')}",
         "gender": user_info.get('sex', 'Unknown'),
         "clinic_name": req.clinic_name,
-        "vitals": {
-            "heart_rate": latest_vitals.get('hr', 'N/A'),
-            "spo2": latest_vitals.get('spo2', 'N/A'),
-            "blood_pressure": f"{latest_vitals.get('sys', 'N/A')}/{latest_vitals.get('dia', 'N/A')}",
-            "temp": latest_vitals.get('temp', 'N/A')
-        },
-        "ecg_wave": latest_vitals.get("ecg_wave"),
+        "vitals": vitals_dict,
+        "ecg_wave": ecg_wave_data,
         "ecg": req.ecg or {},
         "assessment": req.assessment or {},
         "recommendations": req.recommendations or [
@@ -379,8 +398,23 @@ def print_assessment_by_id(session_id: str):
     vitals = db.get_vitals_by_session(session_id) or {}
     
     # Check if there's any AI diagnosis for this session from chat history
-    # For now we'll just reconstruct the basic report.
-    
+    recs = []
+    cache_file = os.path.join(os.path.dirname(__file__), "diagnoses_cache", f"{session_id}.json")
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r") as f:
+                diagnoses = json.load(f)
+                if diagnoses:
+                    top_diag = diagnoses[0]
+                    # Extract string arrays from recommendation objects
+                    for rec_obj in top_diag.get("recommendations", []):
+                        title = rec_obj.get("title", "توصية")
+                        items = rec_obj.get("items", [])
+                        if items:
+                            recs.append(f"{title}: {', '.join(items)}")
+        except Exception as e:
+            logger.error(f"Failed to read diagnoses cache for printing: {e}")
+            
     timestamp_str = vitals.get('timestamp') or session.get('created_at', '')
     if timestamp_str:
         # Reformat from ISO to human readable
@@ -404,7 +438,7 @@ def print_assessment_by_id(session_id: str):
         "ecg_wave": vitals.get("ecg_wave"),
         "ecg": {},
         "assessment": {},
-        "recommendations": []
+        "recommendations": recs
     }
     
     success = printer.print_full_assessment(data)
@@ -506,21 +540,11 @@ class ExtractSymptomsRequest(BaseModel):
 
 @app.post("/diagnosis/extract-symptoms")
 def extract_symptoms(req: ExtractSymptomsRequest):
-    # Temporary mock until local LLM extraction is added
     logger.info(f"Extracting symptoms from: {req.text}")
-    # Mock behavior: if patient says something containing 'ألم في الصدر' it adds it.
-    found_symptoms = []
-    if "صدر" in req.text:
-        found_symptoms.append("ألم في الصدر")
-    if "دوار" in req.text or "دوخة" in req.text:
-        found_symptoms.append("دوخة ودوار")
-    if "كحة" in req.text or "سعال" in req.text:
-        found_symptoms.append("سعال")
-    
+    import llm
+    found_symptoms = llm.extract_symptoms(req.text)
     if not found_symptoms:
-        # Just echo a dummy symptom to show it works
         found_symptoms.append("أعراض مخصصة (من الصوت)")
-        
     return {"symptoms": found_symptoms}
 
 

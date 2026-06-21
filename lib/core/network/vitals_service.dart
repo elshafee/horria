@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../../models/measurement_type.dart';
+import '../../data/measurement_store.dart';
 import 'auth_store.dart';
+import 'api_config.dart';
 
 class VitalsResult {
   final bool isSuccess;
@@ -22,7 +24,7 @@ class VitalsService {
   final String baseUrl;
 
   VitalsService({
-    this.baseUrl = 'http://192.168.1.9:8000',
+    this.baseUrl = ApiConfig.baseUrl,
   });
 
   /// Sends the latest measurement data to the backend database.
@@ -159,9 +161,22 @@ class VitalsService {
       
       request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
       
+      final store = MeasurementStore();
+      final measurements = store.getAllMeasurements();
+      
+      final vitals = <String, dynamic>{};
+      for (var m in measurements) {
+        if (m.type == MeasurementType.heartRate) vitals['heart_rate'] = m.value;
+        if (m.type == MeasurementType.oxygen) vitals['spo2'] = m.value;
+        if (m.type == MeasurementType.bloodPressure) vitals['blood_pressure'] = m.value;
+        if (m.type == MeasurementType.temperature) vitals['temp'] = m.value;
+        if (m.type == MeasurementType.glucose) vitals['blood_sugar'] = m.value;
+      }
+
       final payload = {
         'user_id': userId,
         'session_id': sessionId,
+        'vitals': vitals,
         if (clinicName != null) 'clinic_name': clinicName,
       };
       

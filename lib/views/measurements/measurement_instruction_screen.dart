@@ -7,6 +7,7 @@ import '../../core/routes/app_router.dart';
 import '../../core/theme/robot_theme.dart';
 import '../../presentation/global_widgets/sdui_primary_button.dart';
 import '../../lepu_service.dart';
+import '../../core/network/api_config.dart';
 import 'measurement_layout.dart';
 
 class MeasurementInstructionScreen extends StatefulWidget {
@@ -61,7 +62,7 @@ class _MeasurementInstructionScreenState extends State<MeasurementInstructionScr
   Future<void> _speakText(String text) async {
     try {
       await http.post(
-        Uri.parse('http://192.168.1.9:8000/diagnosis/speak'),
+        Uri.parse('${ApiConfig.baseUrl}/diagnosis/speak'),
         headers: {"Content-Type": "application/json"},
         body: json.encode({"text": text}),
       );

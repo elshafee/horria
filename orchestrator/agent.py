@@ -2,7 +2,7 @@ import json
 import logging
 import db
 import prompts
-import llm_client
+import llm
 import rag
 
 logger = logging.getLogger("agent")
@@ -10,7 +10,7 @@ logger = logging.getLogger("agent")
 def run_agent_turn(user_id: int, session_id: str, user_message: str) -> dict:
     """
     Retrieves user history context, queries AHA RAG guidelines, builds prompt,
-    queries the LLM, and returns a structured clinical JSON response containing SDUI metadata.
+    queries the LLM with chat history memory, and returns a structured clinical JSON response.
     """
     logger.info(f"Running agent turn for user {user_id}, session {session_id}")
     
@@ -23,21 +23,34 @@ def run_agent_turn(user_id: int, session_id: str, user_message: str) -> dict:
             "urgency": "normal",
             "theme_state": "normal",
             "control_command": "NONE",
-            "sdui_components": []
+            "options": [],
+            "differential_diagnoses": []
         }
         
     medical_history = db.get_medical_history(user_id)
     history_str = ", ".join([f"{h['question_id']}: {h['answer']}" for h in medical_history]) if medical_history else "لا يوجد سجل طبي مدون."
     
-    vitals_history = db.get_vitals_history(user_id, limit=1)
+    session_vitals = db.get_vitals_by_session(session_id)
     sys_val = None
     dia_val = None
     
-    if vitals_history:
-        v = vitals_history[0]
+    if session_vitals:
+        v = session_vitals
         sys_val = v.get('sys')
         dia_val = v.get('dia')
-        vitals_ctx = f"التاريخ: {v['timestamp']}, نبض: {v['hr']} bpm, أكسجين: {v['spo2']}%, ضغط: {v['sys']}/{v['dia']} mmHg, حرارة: {v['temp']}°C. (حرج: {'نعم' if v['is_critical'] else 'لا'})"
+        
+        # Build vital string safely checking for None
+        v_str = []
+        if v.get('hr') is not None: v_str.append(f"نبض: {v['hr']} bpm")
+        if v.get('spo2') is not None: v_str.append(f"أكسجين: {v['spo2']}%")
+        if sys_val is not None and dia_val is not None: v_str.append(f"ضغط: {sys_val}/{dia_val} mmHg")
+        if v.get('temp') is not None: v_str.append(f"حرارة: {v['temp']}°C")
+        
+        if v_str:
+            crit_str = 'نعم' if v.get('is_critical') else 'لا'
+            vitals_ctx = f"التاريخ: {v['timestamp']}, {', '.join(v_str)}. (حرج: {crit_str})"
+        else:
+            vitals_ctx = "لا توجد قياسات علامات حيوية سابقة."
     else:
         vitals_ctx = "لا توجد قياسات علامات حيوية سابقة."
         
@@ -50,7 +63,7 @@ def run_agent_turn(user_id: int, session_id: str, user_message: str) -> dict:
     # 2. Query AHA Guidelines RAG Database
     aha_guidelines = rag.search_aha_guideline(user_message, sys=sys_val, dia=dia_val)
 
-    # 3. Build final prompt from template
+    # 3. Build system prompt from template
     formatted_prompt = prompts.AGENT_SYSTEM_PROMPT.format(
         name=user_info['name'],
         age=user_info['age'],
@@ -62,18 +75,23 @@ def run_agent_turn(user_id: int, session_id: str, user_message: str) -> dict:
         aha_guidelines_context=aha_guidelines
     )
     
-    # Append the user's message context
-    formatted_prompt += f"\n\nPATIENT MESSAGE: {user_message}\nRESPONSE JSON:"
+    # 4. Fetch Chat History (last 8 messages for context window safety)
+    raw_history = db.get_chat_history(session_id)[-8:]
+    chat_history = []
+    for h in raw_history:
+        role = "assistant" if h['sender'] == 'agent' else "user"
+        chat_history.append({"role": role, "content": h['message']})
+        
+    # Append the JSON rules to the very end of the user message to strictly enforce JSON output
+    user_prompt = f"PATIENT MESSAGE: {user_message}\n\nRESPOND ONLY IN PURE JSON FORMAT."
+
+    # 5. Query LLM WITH HISTORY
+    llm_output = llm.chat_with_history(formatted_prompt, chat_history, user_prompt)
     
-    # 4. Query LLM
-    llm_output = llm_client.query_llm(formatted_prompt)
-    
-    # 5. Parse JSON response
+    # 6. Parse JSON response
     try:
-        # Strip code fences if present
         cleaned_output = llm_output.strip()
         
-        # Strip <think> blocks which some reasoning models inject
         import re
         cleaned_output = re.sub(r'<think>.*?</think>', '', cleaned_output, flags=re.DOTALL).strip()
         
@@ -83,6 +101,11 @@ def run_agent_turn(user_id: int, session_id: str, user_message: str) -> dict:
             cleaned_output = cleaned_output.rsplit("\n", 1)[0]
         cleaned_output = cleaned_output.strip()
         
+        # Sometimes the LLM fails to close the JSON gracefully if it hits max_tokens
+        # Fallback if unclosed
+        if not cleaned_output.endswith("}"):
+            cleaned_output += '"}'
+            
         parsed_response = json.loads(cleaned_output)
         
         # Populate defaults if omitted
@@ -96,16 +119,19 @@ def run_agent_turn(user_id: int, session_id: str, user_message: str) -> dict:
             parsed_response["urgency"] = "normal"
         if "next_action" not in parsed_response:
             parsed_response["next_action"] = "CONTINUE_CHAT"
+        if "control_command" not in parsed_response:
+            parsed_response["control_command"] = "NONE"
             
         return parsed_response
     except Exception as e:
         logger.error(f"Failed to parse LLM JSON output. Raw output: {llm_output}. Error: {e}")
         # Secure fallback response
         return {
-            "response": "عذراً، أواجه مشكلة في معالجة طلبك حالياً. هل تشعر بأي أعراض طارئة؟",
+            "response": "عذراً، أواجه مشكلة في صياغة الإجابة حالياً. هل تشعر بأي أعراض طارئة؟",
             "options": ["نعم", "لا"],
             "next_action": "CONTINUE_CHAT",
             "urgency": "normal",
             "theme_state": "normal",
+            "control_command": "NONE",
             "differential_diagnoses": []
         }

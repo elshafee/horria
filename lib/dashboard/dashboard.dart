@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
             /// Date
             Positioned(
               top: 60,
-              right: 220,
+              right: 50,
               child:  Text(
                 'اليوم: $dateStr | $timeStr',
                 style: const TextStyle(
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
               left: 240,
               child: Container(
                 width: 650,
-                height: 85,
+                height: 100,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: const Color(0xffF7DDE8),
@@ -110,30 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-      
-            /// Message circle
-            Positioned(
-              left: 195,
-              top: 205,
-              child: Container(
-                width: 90,
-                height: 90,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xffDB6AA0),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  '...',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-      
             /// Subtitle
             const Positioned(
               top: 330,
@@ -147,32 +123,59 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
       
+            /// Message circle
+            Positioned(
+              left: 195,
+              top: 205,
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration:  BoxDecoration(
+                  shape: BoxShape.circle,
+                  // color: Colors.tra,
+                  image: DecorationImage(image: AssetImage("assets/images/dashboard/speak.gif"))
+                ),
+                alignment: Alignment.center,
+                child:
+                Text(
+                  '',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+      
+
+      
             /// Cards
             Positioned(
               left: 30,
               top: 470,
               child: _ServiceCard(
-                image: 'assets/images/common/clinic.png',
+                image: 'assets/images/dashboard/clinics.gif',
                 title: 'العيادات',
                 route: AppRouter.clinicsList,
               ),
             ),
       
             Positioned(
-              left: 410,
+              left: 435,
               top: 470,
               child: _ServiceCard(
-                image: 'assets/images/common/diagnoses.png',
+                image: 'assets/images/dashboard/diagnoses.gif',
                 title: 'تشخيص الأمراض',
                 route: AppRouter.aiInterview,
               ),
             ),
       
             Positioned(
-              left: 790,
+              right: 30,
               top: 470,
               child: _ServiceCard(
-                image: 'assets/images/common/vital_sign.png',
+                image: 'assets/images/dashboard/vital.gif',
                 title: 'قياس الإشارات الحيوية',
                 route: AppRouter.vitalSignsHome,
               ),
@@ -214,38 +217,41 @@ class _ServiceCard extends StatelessWidget {
             )
           ],
         ),
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Image.asset(
-                  image,
-                  // width: 300,
-                  // height: 180,
-                  fit: BoxFit.cover,
+        child: Padding(
+          padding: EdgeInsetsGeometry.only(top: 5),
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: Image.asset(
+                    image,
+                    // width: 300,
+                    // height: 180,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            Container(
-              height: 65,
-              decoration: const BoxDecoration(
-                color: Color(0xFF563B7E),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(22),
-                  bottomRight: Radius.circular(22),
+              Container(
+                height: 65,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF563B7E),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(22),
+                    bottomRight: Radius.circular(22),
+                  ),
                 ),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
+                alignment: Alignment.center,
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

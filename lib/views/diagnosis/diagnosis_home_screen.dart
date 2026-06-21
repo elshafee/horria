@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart';
 import '../../core/routes/app_router.dart';
 import '../../core/network/auth_store.dart';
+import '../../core/network/api_config.dart';
 import 'diagnosis_layout.dart';
 
 class DiagnosisHomeScreen extends StatefulWidget {
@@ -56,7 +57,7 @@ class _DiagnosisHomeScreenState extends State<DiagnosisHomeScreen> {
     String message = 'أهلا يا $userName ... سأساعدك في تقييم حالتك الصحية اليوم ... اختر ما يناسبك.';
     try {
       await http.post(
-        Uri.parse('http://192.168.1.9:8000/diagnosis/speak'),
+        Uri.parse('${ApiConfig.baseUrl}/diagnosis/speak'),
         headers: {"Content-Type": "application/json"},
         body: json.encode({"text": message}),
       );
@@ -116,7 +117,7 @@ class _DiagnosisHomeScreenState extends State<DiagnosisHomeScreen> {
       
       // Speak the warning
       http.post(
-        Uri.parse('http://192.168.1.9:8000/diagnosis/speak'),
+        Uri.parse('${ApiConfig.baseUrl}/diagnosis/speak'),
         headers: {"Content-Type": "application/json"},
         body: json.encode({"text": warningMsg}),
       ).catchError((e) => print('Error speaking warning: $e'));

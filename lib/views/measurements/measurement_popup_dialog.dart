@@ -7,6 +7,7 @@ import '../../lepu_service.dart';
 import '../../core/constants/app_strings.dart';
 import '../../data/measurement_store.dart';
 import '../../core/network/vitals_service.dart';
+import '../../core/network/api_config.dart';
 import '../../presentation/global_widgets/sdui_primary_button.dart';
 
 enum MeasurementPhase { instruction, measuring, success, failure }
@@ -75,7 +76,7 @@ class _MeasurementPopupDialogState extends State<MeasurementPopupDialog> with Si
   Future<void> _speakText(String text) async {
     try {
       await http.post(
-        Uri.parse('http://192.168.1.9:8000/diagnosis/speak'),
+        Uri.parse('${ApiConfig.baseUrl}/diagnosis/speak'),
         headers: {"Content-Type": "application/json"},
         body: json.encode({"text": text}),
       );

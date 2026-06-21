@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'auth_store.dart';
+import 'api_config.dart';
 
 class UserProfile {
   final int id;
@@ -36,7 +37,7 @@ class UserService {
   final String baseUrl;
 
   UserService({
-    this.baseUrl = 'http://192.168.1.9:8000',
+    this.baseUrl = ApiConfig.baseUrl,
   });
 
   Future<UserProfile?> getUserProfile() async {

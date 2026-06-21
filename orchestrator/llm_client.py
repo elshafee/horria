@@ -7,7 +7,7 @@ logger = logging.getLogger("llm_client")
 
 API_URL = "https://router.huggingface.co/v1/chat/completions"
 # Using Qwen 2.5 72B because it is the absolute best open source model for Arabic text and JSON formatting.
-HF_MODEL = "Qwen/Qwen2.5-72B-Instruct" 
+HF_MODEL = "google/gemma-3-4b-it:featherless-ai"
 
 HF_TOKEN = "hf_jwt_eyJhbGciOiJIUzI1NiJ9.eyJwZXJtaXNzaW9ucyI6eyJpbmZlcmVuY2Uuc2VydmVybGVzcy53cml0ZSI6dHJ1ZX0sIm9uQmVoYWxmT2YiOnsia2luZCI6InVzZXIiLCJfaWQiOiI2OTU3ZjEwZTgwMTJjODhjMDYzMDNlNWEiLCJ1c2VyIjoiYWhtYWRlbHNoYWZlZSIsInNlc3Npb25JZCI6IjZhMzRiMmYwMzVlMmMwZGI1YTIyNzJjNSJ9LCJpYXQiOjE3ODE4Mzg3MjQsImp0aSI6IjVmYzA1NGRiLWYyMDQtNGJkMi04MWMyLTA5NGQwN2FhOWY3YiIsInN1YiI6Imh0dHBzOi8vcm91dGVyLmh1Z2dpbmdmYWNlLmNvIiwiZXhwIjoxNzgxODQyMzI0LCJpc3MiOiJodHRwczovL2h1Z2dpbmdmYWNlLmNvIn0.HtJvobzjOzM5vqD7hTQp4E8MkgfGt2g9UfQlehOKL-g"
 

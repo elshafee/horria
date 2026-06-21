@@ -10,6 +10,8 @@ void main() {
 // =========================
 // 🚀 APP
 // =========================
+import 'core/network/api_config.dart';
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,7 @@ class _VoiceScreenState extends State<VoiceScreen> {
   // =========================
   void initSocket() {
     socket = IO.io(
-      'http://192.168.1.9:5000',
+      ApiConfig.legacyBaseUrl,
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .build(),

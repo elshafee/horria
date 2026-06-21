@@ -1,12 +1,12 @@
 """
 Dr. Horria - Professional Thermal Printer Module
-Printer: Xprinter XP-D200N (USB, ESC/POS)
-Paper width: 80mm (576 dots at 203 DPI)
+Printer : Xprinter XP-D200N (USB raw device /dev/usb/lp0, ESC/POS)
+Paper   : 80mm — 576 dots @ 203 DPI
 
-Three print functions:
-  print_receipt()              - lab results summary slip
-  print_full_assessment()      - complete patient assessment report
-  print_ecg_strip_standalone() - professional ECG strip with real wave data
+Print functions:
+  print_receipt()              — lab results summary slip
+  print_full_assessment()      — complete patient assessment report
+  print_ecg_strip_standalone() — professional ECG strip with real wave data
 """
 import logging
 import os
@@ -18,99 +18,230 @@ from scipy.interpolate import CubicSpline
 
 logger = logging.getLogger("printer")
 
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 # CONFIG
-# ---------------------------------------------------------------------------
-PRINTER_PORT     = os.environ.get("PRINTER_PORT", "/dev/ttyACM0")
-PRINTER_BAUDRATE = int(os.environ.get("PRINTER_BAUDRATE", "115200"))
+# ─────────────────────────────────────────────────────────────────────────────
+PRINTER_PORT     = os.environ.get("PRINTER_PORT", "/dev/usb/lp0")
 PRINTER_ENABLED  = os.environ.get("PRINTER_ENABLED", "True").lower() == "true"
-PAPER_WIDTH_DOTS = 576   # 80mm paper at 203 DPI
-USABLE_WIDTH     = 560   # leave small margins
+PAPER_WIDTH_DOTS = 576
+USABLE_WIDTH     = 560
+COL_WIDTH        = 32   # characters across in normal font
 
 
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 # PRINTER CONNECTION
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 def _get_printer():
     if not PRINTER_ENABLED:
         return None
     try:
-        from escpos.printer import Serial
-        p = Serial(devfile=PRINTER_PORT, baudrate=PRINTER_BAUDRATE, timeout=1)
+        from escpos.printer import File
+        p = File(PRINTER_PORT)
+        logger.info(f"Printer connected via USB: {PRINTER_PORT}")
         return p
     except Exception as e:
         logger.error(f"Could not connect to printer: {e}")
         return None
 
-def _mock_print(label: str, data):
-    logger.info(f"[MOCK PRINT] {label}: {str(data)[:200]}")
+
+def _close_printer(p):
+    """Safely and explicitly close the underlying file descriptor to free /dev/usb/lp0."""
+    if p:
+        try:
+            # python-escpos File class stores the open file handle in p.device
+            if hasattr(p, 'device') and p.device:
+                p.device.close()
+                logger.info("Printer device handle closed cleanly and freed.")
+        except Exception as e:
+            logger.error(f"Error while closing printer handle: {e}")
+
+
+def _print_arabic_text(p, text: str, font_size: int = 24, align: str = "right"):
+    """
+    Renders Arabic (or mixed) text as an image using PIL.
+    Requires: pip install arabic-reshaper python-bidi
+    """
+    try:
+        import arabic_reshaper
+        from bidi.algorithm import get_display
+        
+        reshaped_text = arabic_reshaper.reshape(text)
+        bidi_text = get_display(reshaped_text)
+        
+        font_path = os.path.join(os.path.dirname(__file__), "Cairo-Regular.ttf")
+        if os.path.exists(font_path):
+            font = ImageFont.truetype(font_path, font_size)
+        else:
+            font = ImageFont.load_default()
+            
+        try:
+            bbox = font.getbbox(bidi_text)
+            text_w = bbox[2] - bbox[0]
+            text_h = bbox[3] - bbox[1] + 10
+        except AttributeError:
+            # Fallback for older PIL
+            text_w, text_h = font.getsize(bidi_text)
+            text_h += 10
+            
+        img_w = min(PAPER_WIDTH_DOTS, max(PAPER_WIDTH_DOTS, text_w + 20))
+        img = Image.new("L", (img_w, text_h), color=255)
+        draw = ImageDraw.Draw(img)
+        
+        if align == "center":
+            x = (img_w - text_w) // 2
+        elif align == "right":
+            x = img_w - text_w - 10
+        else:
+            x = 10
+            
+        draw.text((x, 5), bidi_text, font=font, fill=0)
+        p.image(img, impl="bitImageRaster")
+    except Exception as e:
+        logger.error(f"Arabic print failed: {e}. Falling back to normal text.")
+        p.text(text + "\n")
+
+
+def _mock_print(label: str, data) -> bool:
+    logger.info(f"[MOCK PRINT] {label}: {str(data)[:300]}")
     return True
 
 
-# ---------------------------------------------------------------------------
-# SHARED HEADER / FOOTER HELPERS
-# ---------------------------------------------------------------------------
-def _print_header(p, title: str, report_date: str = None):
-    """Print a professional centered header block."""
-    p.set(align="center", bold=True, double_height=True, double_width=False)
-    p.text("DR. HORRIA\n")
-    p.set(align="center", bold=False, double_height=False)
-    p.text("Biomedical Robot Assistant\n")
-    p.set(align="center", bold=False)
-    p.text("Horus University\n Faculty of Engineering\n")
-    p.set(align="center", bold=False)
-    p.text("================================\n")
-    p.set(align="center", bold=True)
-    p.text(f"{title}\n")
-    p.set(align="left", bold=False)
-    p.text("================================\n")
-    if report_date:
-        p.text(f"Date/Time : {report_date}\n")
-    else:
-        now = datetime.now()
-        p.text(f"Date : {now.strftime('%d/%m/%Y')}   Time: {now.strftime('%H:%M')}\n")
-    p.text("--------------------------------\n")
+# ─────────────────────────────────────────────────────────────────────────────
+# LOW-LEVEL DRAWING HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
+def _ln(p, text: str = ""):
+    p.text(f"{text}\n")
 
+def _double_rule(p):
+    p.set(align="center")
+    _ln(p, "=" * COL_WIDTH)
 
-def _print_footer(p, report_id: str = None):
-    """Print disclaimer, report ID, and feed/cut."""
-    if not report_id:
-        now = datetime.now()
-        report_id = now.strftime("DH-%Y%m%d-%H%M%S")
-    p.text("--------------------------------\n")
-    p.set(align="center", bold=False)
-    p.text("IMPORTANT NOTICE\n")
-    p.text("This report is generated by\n")
-    p.text("Dr. Horria AI System.\n")
-    p.text("It does NOT replace a\n")
-    p.text("professional medical diagnosis.\n")
-    p.text("--------------------------------\n")
-    p.text(f"Report ID: {report_id}\n")
-    p.set(align="center", bold=True)
-    p.text("\nThank You for Using\n")
-    p.text("Dr. Horria\n")
+def _thin_rule(p):
+    _ln(p, "-" * COL_WIDTH)
+
+def _blank(p, n: int = 1):
+    for _ in range(n):
+        _ln(p)
+
+def _section_title(p, title: str):
+    pad   = COL_WIDTH - len(title) - 4
+    left  = max(0, pad // 2)
+    right = max(0, pad - left)
+    line  = f"{'-' * left} {title} {'-' * right}"
+    p.set(align="left", bold=True)
+    _ln(p, line)
     p.set(bold=False)
-    p.text("\n\n\n\n\n")
+
+def contains_arabic(text: str) -> bool:
+    return any("\u0600" <= c <= "\u06FF" or "\u0750" <= c <= "\u077F" for c in text)
+
+def _dot_row(p, label: str, value: str, flag: str = ""):
+    """Dot-leader two-column row: Label ........... Value"""
+    flag_marker = "  [!!!]" if flag and flag.lower() not in ("normal", "ok", "green", "") else ""
+    value_str   = f"{value}{flag_marker}"
+    
+    if contains_arabic(value_str):
+        # If value has Arabic, just print label on one line, and Arabic value on next line aligned right
+        _ln(p, f"{label}:")
+        _print_arabic_text(p, value_str, font_size=24, align="right")
+        return
+        
+    dots_count  = max(1, COL_WIDTH - len(label) - len(value_str) - 2)
+    line        = f"{label} {'.' * dots_count} {value_str}"
+    if flag_marker:
+        p.set(bold=True)
+        _ln(p, line)
+        p.set(bold=False)
+    else:
+        _ln(p, line)
+
+def _print_valid_row(p, label: str, val, unit: str = "", flag: str = "") -> bool:
+    """Only print the row if value is meaningful (not blank/N/A/---)."""
+    s_val = str(val).strip() if val is not None else ""
+    if s_val.lower() in ("", "---", "n/a", "unknown", "none", "null", "n/a/n/a"):
+        return False
+    _dot_row(p, label, f"{s_val} {unit}".strip(), flag)
+    return True
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHARED HEADER / FOOTER
+# ─────────────────────────────────────────────────────────────────────────────
+def _print_header(p, title: str, clinic_name: str = None, report_date: str = None):
+    now = datetime.now()
+
+    if clinic_name:
+        _print_arabic_text(p, clinic_name, font_size=32, align="center")
+        _blank(p)
+
+    _double_rule(p)
+    _blank(p)
+
+    p.set(align="center", bold=True, double_height=True, double_width=False)
+    _ln(p, "DR. HORRIA")
+    p.set(double_height=False, bold=False)
+
+    p.set(align="center")
+    _ln(p, "Biomedical Robot Assistant")
+    _ln(p, "Horus University  |  Eng. Faculty")
+    _blank(p)
+
+    _double_rule(p)
+
+    p.set(align="center", bold=True)
+    _blank(p)
+    _ln(p, title)
+    _blank(p)
+    p.set(bold=False)
+
+    _double_rule(p)
+
+    date_str = report_date if report_date else now.strftime("%d / %m / %Y")
+    time_str = now.strftime("%H:%M")
+    p.set(align="left")
+    _ln(p, f"  Date : {date_str}    Time : {time_str}")
+    _thin_rule(p)
+
+
+def _print_footer(p, report_prefix: str = "DH", report_id: str = None):
+    now = datetime.now()
+    if not report_id:
+        report_id = now.strftime(f"{report_prefix}-%Y%m%d-%H%M%S")
+
+    _blank(p)
+    _thin_rule(p)
+
+    p.set(align="center", bold=True)
+    _ln(p, "IMPORTANT NOTICE")
+    p.set(bold=False)
+    _ln(p, "This report is generated by the")
+    _ln(p, "Dr. Horria AI System.")
+    _ln(p, "It does NOT replace a")
+    _ln(p, "professional medical diagnosis.")
+    _ln(p, "Always consult your physician.")
+
+    _thin_rule(p)
+    p.set(align="left")
+    _ln(p, f"  Report ID : {report_id}")
+
+    _double_rule(p)
+
+    p.set(align="center", bold=True)
+    _blank(p)
+    _ln(p, "Thank you for using")
+    p.set(double_height=True)
+    _ln(p, "DR. HORRIA")
+    p.set(double_height=False, bold=False)
+    _blank(p)
+
+    _double_rule(p)
+    _blank(p, 5)
     p.cut()
 
 
-def _section(p, title: str):
-    p.set(bold=True)
-    p.text(f"\n{title}\n")
-    p.set(bold=False)
-    p.text("--------------------------------\n")
-
-
-def _row(p, label: str, value: str, flag: str = ""):
-    """Print a two-column data row with optional flag marker."""
-    marker = " !!!" if flag and flag.lower() not in ("normal", "green", "ok", "") else ""
-    label_col = f"{label:<16}"
-    p.text(f"{label_col}: {value}{marker}\n")
-
-
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 # 1. LAB RESULTS RECEIPT
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 def print_receipt(user_name: str, test_results: list) -> bool:
     logger.info(f"Print lab receipt for: {user_name}")
     p = _get_printer()
@@ -119,32 +250,52 @@ def print_receipt(user_name: str, test_results: list) -> bool:
 
     try:
         _print_header(p, "LAB RESULTS")
-        p.set(bold=True)
-        p.text(f"Patient: {user_name}\n")
-        p.set(bold=False)
-        p.text("--------------------------------\n")
-        p.set(bold=True)
-        p.text(f"{'Test':<18} {'Value':<10} {'Status'}\n")
-        p.set(bold=False)
-        p.text("--------------------------------\n")
+        _blank(p)
 
+        p.set(bold=True)
+        _ln(p, f"  Patient : {user_name}")
+        p.set(bold=False)
+        _thin_rule(p)
+
+        # Column headers
+        p.set(bold=True)
+        _ln(p, f"  {'TEST':<16} {'VALUE':<8}  STATUS")
+        p.set(bold=False)
+        _thin_rule(p)
+
+        abnormal_count = 0
         for res in test_results:
-            name  = str(res.get("test_name", ""))[:17]
-            value = str(res.get("value", ""))[:9]
-            flag  = str(res.get("flag", ""))
-            marker = "!!!" if flag.lower() not in ("normal", "green", "ok", "") else "OK "
-            p.text(f"{name:<18} {value:<10} {marker}\n")
+            name   = str(res.get("test_name", "Unknown"))[:16]
+            value  = str(res.get("value",     "---"))[:8]
+            flag   = str(res.get("flag",      ""))
+            is_bad = flag.lower() not in ("normal", "ok", "green", "")
 
-        _print_footer(p)
+            if is_bad:
+                abnormal_count += 1
+                p.set(bold=True)
+                _ln(p, f"  {name:<16} {value:<8}  [!!!]")
+                p.set(bold=False)
+            else:
+                _ln(p, f"  {name:<16} {value:<8}   OK")
+
+        _thin_rule(p)
+        p.set(bold=True)
+        _ln(p, f"  Total: {len(test_results)} tests   Abnormal: {abnormal_count}")
+        p.set(bold=False)
+
+        _print_footer(p, report_prefix="LAB")
         return True
+
     except Exception as e:
         logger.error(f"print_receipt error: {e}")
         return False
+    finally:
+        _close_printer(p)
 
 
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 # 2. FULL ASSESSMENT REPORT
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
 def print_full_assessment(data: dict) -> bool:
     logger.info(f"Print full assessment for: {data.get('name', 'Patient')}")
     p = _get_printer()
@@ -153,176 +304,201 @@ def print_full_assessment(data: dict) -> bool:
 
     try:
         _print_header(p, "HEALTH ASSESSMENT", data.get("date"))
+        _blank(p)
 
-        def print_valid_row(p, label, val, unit=""):
-            s_val = str(val).strip()
-            if s_val and s_val.lower() not in ("---", "n/a", "unknown", "none", "null", ""):
-                _row(p, label, f"{s_val} {unit}".strip())
-                return True
-            return False
-
-        # Patient info
-        _section(p, "PATIENT INFORMATION")
-        print_valid_row(p, "Name",   data.get("name"))
-        print_valid_row(p, "Age",    data.get("age"))
-        print_valid_row(p, "Gender", data.get("gender"))
-        print_valid_row(p, "Clinic", data.get("clinic_name"))
+        # ── Patient Information ───────────────────────────────────────────────
+        _section_title(p, "PATIENT INFORMATION")
+        _print_valid_row(p, "Name",   data.get("name"))
+        _print_valid_row(p, "Age",    data.get("age"))
+        _print_valid_row(p, "Gender", data.get("gender"))
+        _print_valid_row(p, "Clinic", data.get("clinic_name"))
         if not data.get("date"):
-            _row(p, "Date",   datetime.now().strftime("%Y-%m-%d %H:%M"))
+            _dot_row(p, "Date", datetime.now().strftime("%Y-%m-%d %H:%M"))
+        _blank(p)
 
-        # Vital signs
+        # ── Vital Signs ───────────────────────────────────────────────────────
         v = data.get("vitals", {})
-        has_vitals = any(str(x).strip().lower() not in ("---", "n/a", "unknown", "none", "", "n/a/n/a") for x in v.values())
+        has_vitals = any(
+            str(x).strip().lower() not in ("", "---", "n/a", "unknown", "none", "null", "n/a/n/a")
+            for x in v.values()
+        )
         if has_vitals:
-            _section(p, "VITAL SIGNS")
-            print_valid_row(p, "Temperature",  v.get('temp'), "°C")
-            print_valid_row(p, "Heart Rate",   v.get('heart_rate'), "BPM")
-            print_valid_row(p, "SpO2",         v.get('spo2'), "%")
-            # For blood pressure, "N/A/N/A" might happen
-            bp = str(v.get('blood_pressure', ''))
-            if bp != "N/A/N/A" and bp != "---/---" and bp.strip():
-                print_valid_row(p, "Blood Press.", bp, "mmHg")
-            print_valid_row(p, "Blood Sugar",  v.get('blood_sugar'), "mg/dL")
-            print_valid_row(p, "Weight",       v.get('weight'), "kg")
-            print_valid_row(p, "Height",       v.get('height'), "cm")
-            print_valid_row(p, "Temperature",          v.get("temperature"),"ْC")
+            _section_title(p, "VITAL SIGNS")
+            _print_valid_row(p, "Heart Rate",    v.get("heart_rate"),    "BPM")
+            _print_valid_row(p, "SpO2",          v.get("spo2"),          "%")
+            bp = str(v.get("blood_pressure", "")).strip()
+            if bp and bp not in ("N/A/N/A", "---/---", "N/A"):
+                _dot_row(p, "Blood Pressure", f"{bp} mmHg")
+            _print_valid_row(p, "Temperature",   v.get("temp"),          "°C")
+            _print_valid_row(p, "Blood Sugar",   v.get("blood_sugar"),   "mg/dL")
+            _print_valid_row(p, "Weight",        v.get("weight"),        "kg")
+            _print_valid_row(p, "Height",        v.get("height"),        "cm")
+            _print_valid_row(p, "BMI",           v.get("bmi"))
+            _blank(p)
 
-        # ECG summary
-        ecg = data.get("ecg", {})
-        has_ecg = any(str(x).strip().lower() not in ("---", "n/a", "unknown", "none", "") for x in ecg.values())
+        # ── ECG Analysis ──────────────────────────────────────────────────────
+        ecg  = data.get("ecg", {})
         wave = data.get("ecg_wave")
+        has_ecg = any(
+            str(x).strip().lower() not in ("", "---", "n/a", "unknown", "none")
+            for x in ecg.values()
+        )
         if has_ecg or (wave and len(wave) > 10):
-            _section(p, "ECG ANALYSIS")
-            print_valid_row(p, "Rhythm",     ecg.get("rhythm"))
-            print_valid_row(p, "ECG Status", ecg.get("status"))
-
-            # Print ECG waveform image if wave data provided
+            _section_title(p, "ECG ANALYSIS")
+            _print_valid_row(p, "Rhythm",     ecg.get("rhythm"))
+            _print_valid_row(p, "ECG Status", ecg.get("status"))
             if wave and len(wave) > 10:
                 img = _generate_ecg_image(wave)
                 if img:
                     p.image(img, high_density_vertical=True,
                             high_density_horizontal=True, impl="bitImageRaster")
-                    p.text("\n")
+                    _blank(p)
+            _blank(p)
 
-        # Health assessment scores
+        # ── Health Assessment ─────────────────────────────────────────────────
         a = data.get("assessment", {})
-        has_assessment = any(str(x).strip().lower() not in ("---", "n/a", "unknown", "none", "") for x in a.values())
+        has_assessment = any(
+            str(x).strip().lower() not in ("", "---", "n/a", "unknown", "none")
+            for x in a.values()
+        )
         if has_assessment:
-            _section(p, "HEALTH ASSESSMENT")
-            print_valid_row(p, "Cardio Status", a.get("cardio"))
-            print_valid_row(p, "BP Status",     a.get("bp"))
-            print_valid_row(p, "BMI Status",    a.get("bmi_status"))
-            print_valid_row(p, "Stress Level",  a.get("stress"))
-            print_valid_row(p, "Health Score",  a.get("score"))
+            _section_title(p, "HEALTH ASSESSMENT")
+            _print_valid_row(p, "Cardio Status", a.get("cardio"))
+            _print_valid_row(p, "BP Status",     a.get("bp"))
+            _print_valid_row(p, "BMI Status",    a.get("bmi_status"))
+            _print_valid_row(p, "Stress Level",  a.get("stress"))
+            _print_valid_row(p, "Health Score",  a.get("score"))
+            _blank(p)
 
-        # Recommendations
+        # ── Recommendations ───────────────────────────────────────────────────
         recs = data.get("recommendations", [])
         if recs:
-            _section(p, "RECOMMENDATIONS")
+            _section_title(p, "RECOMMENDATIONS")
             for i, rec in enumerate(recs, 1):
-                p.text(f"{i}. {rec}\n")
+                rec_text = str(rec).lstrip("* ").strip()
+                line = f"  {i}. {rec_text}"
+                if contains_arabic(line):
+                    _print_arabic_text(p, line, font_size=24, align="right")
+                else:
+                    _ln(p, line)
+            _blank(p)
 
-        _print_footer(p)
+        _print_footer(p, report_prefix="DH")
         return True
+
     except Exception as e:
         logger.error(f"print_full_assessment error: {e}")
         return False
+    finally:
+        _close_printer(p)
 
 
-# ---------------------------------------------------------------------------
-# 3. ECG STRIP (professional, cubic spline, grid, axis labels)
-# ---------------------------------------------------------------------------
+# ─────────────────────────────────────────────────────────────────────────────
+# 3. ECG IMAGE GENERATOR
+# ─────────────────────────────────────────────────────────────────────────────
 def _generate_ecg_image(wave_points=None, heart_rate=None) -> Image.Image:
-    """
-    Generates a professional ECG strip image using cubic spline smoothing.
-    Returns a PIL Image ready to send to the printer.
-    """
-    TARGET_LENGTH = 2800   # tall strip (rotated = long paper feed)
-    TARGET_WIDTH  = PAPER_WIDTH_DOTS
-    AXIS_MARGIN   = 45
-    GRID_SPACING  = 10     # 10 px = 1mm at 203 DPI
+    STRIP_LEN   = 2800
+    STRIP_W     = PAPER_WIDTH_DOTS
+    AXIS_MARGIN = 45
+    GRID_PX     = 10
 
-    # --- Build or use wave data ---
     samples = 400
-    x_base = np.linspace(0, TARGET_LENGTH, samples)
+    x_base  = np.linspace(0, STRIP_LEN, samples)
 
     if wave_points and len(wave_points) > 20:
-        # Resample real data to match our x-axis
-        orig_x = np.linspace(0, TARGET_LENGTH, len(wave_points))
+        orig_x = np.linspace(0, STRIP_LEN, len(wave_points))
         y_base = np.interp(x_base, orig_x, np.array(wave_points, dtype=float))
-        # Normalize to [-1, 1]
-        rng = y_base.max() - y_base.min()
+        rng    = y_base.max() - y_base.min()
         if rng > 0:
             y_base = (y_base - y_base.min()) / rng * 2 - 1
     else:
-        # Synthetic ECG waveform
-        y_base = np.sin(np.linspace(0, 8 * np.pi, samples)) * 0.1
+        y_base = np.sin(np.linspace(0, 8 * np.pi, samples)) * 0.08
         for i in range(len(y_base)):
             r = i % 60
-            if   r == 15: y_base[i] =  1.6   # R peak
-            elif r == 13: y_base[i] = -0.35  # Q wave
-            elif r == 17: y_base[i] = -0.45  # S wave
-            elif r == 30: y_base[i] =  0.40  # T wave
-            elif r ==  5: y_base[i] =  0.20  # P wave
+            if   r ==  5: y_base[i] =  0.22
+            elif r == 14: y_base[i] = -0.30
+            elif r == 16: y_base[i] =  1.80
+            elif r == 18: y_base[i] = -0.40
+            elif r == 30: y_base[i] =  0.38
 
-    # --- Cubic spline smoothing ---
-    cs = CubicSpline(x_base, y_base)
-    x_smooth = np.linspace(0, TARGET_LENGTH, 2000)
+    cs       = CubicSpline(x_base, y_base)
+    x_smooth = np.linspace(0, STRIP_LEN, 2000)
     y_smooth = cs(x_smooth)
 
-    # --- Canvas ---
-    img  = Image.new("L", (TARGET_WIDTH, TARGET_LENGTH), color=255)
+    img  = Image.new("L", (STRIP_W, STRIP_LEN), color=255)
     draw = ImageDraw.Draw(img)
 
-    # --- Millimeter grid ---
-    for count, pos in enumerate(range(0, TARGET_LENGTH, GRID_SPACING)):
-        color = 180 if count % 5 == 0 else 235
-        draw.line([(AXIS_MARGIN, pos), (TARGET_WIDTH - 5, pos)], fill=color, width=1)
-    for count, pos in enumerate(range(AXIS_MARGIN, TARGET_WIDTH, GRID_SPACING)):
-        color = 180 if count % 5 == 0 else 230
-        draw.line([(pos, 0), (pos, TARGET_LENGTH)], fill=color, width=1)
+    # Grid
+    for idx, pos in enumerate(range(0, STRIP_LEN, GRID_PX)):
+        col = 185 if idx % 5 == 0 else 238
+        draw.line([(AXIS_MARGIN, pos), (STRIP_W - 4, pos)], fill=col, width=1)
+    for idx, pos in enumerate(range(AXIS_MARGIN, STRIP_W, GRID_PX)):
+        col = 185 if idx % 5 == 0 else 232
+        draw.line([(pos, 0), (pos, STRIP_LEN)], fill=col, width=1)
 
-    # --- Plot smoothed waveform ---
-    usable_w = TARGET_WIDTH - AXIS_MARGIN
-    center_y = AXIS_MARGIN + (usable_w / 2)
+    # Waveform
+    usable_h  = STRIP_W - AXIS_MARGIN
+    center_y  = AXIS_MARGIN + usable_h // 2
+    amplitude = int(usable_h * 0.38)
+
     wave_pts = []
     for i in range(len(x_smooth)):
         cx = int(x_smooth[i])
-        cy = int(center_y - (y_smooth[i] * 120))
-        cy = max(AXIS_MARGIN + 5, min(TARGET_WIDTH - 10, cy))
+        cy = int(center_y - y_smooth[i] * amplitude)
+        cy = max(AXIS_MARGIN + 4, min(STRIP_W - 6, cy))
         wave_pts.append((cy, cx))
+
+    # Shadow pass for depth
+    shadow = [(y + 2, x + 1) for y, x in wave_pts]
+    draw.line(shadow, fill=180, width=2)
     draw.line(wave_pts, fill=0, width=3)
 
-    # --- Axis line and time labels ---
-    draw.line([(AXIS_MARGIN, 0), (AXIS_MARGIN, TARGET_LENGTH)], fill=0, width=2)
+    # Y-axis
+    draw.line([(AXIS_MARGIN, 0), (AXIS_MARGIN, STRIP_LEN)], fill=0, width=2)
 
     try:
         font = ImageFont.load_default()
     except Exception:
         font = None
 
-    pixel_per_second = 250
-    for pixel_pos in range(0, TARGET_LENGTH, pixel_per_second):
-        seconds = pixel_pos / pixel_per_second
-        time_label = f"{seconds:.1f}s"
-        draw.line([(AXIS_MARGIN - 5, pixel_pos), (AXIS_MARGIN, pixel_pos)], fill=0, width=2)
-        txt_img  = Image.new("L", (80, 20), color=255)
-        txt_draw = ImageDraw.Draw(txt_img)
-        txt_draw.text((0, 2), time_label, fill=0, font=font)
-        rotated  = txt_img.rotate(90, expand=True)
-        img.paste(rotated, (AXIS_MARGIN - 35, pixel_pos - 10))
+    # Time labels
+    px_per_sec = 250
+    for px in range(0, STRIP_LEN, px_per_sec):
+        label = f"{px / px_per_sec:.1f}s"
+        draw.line([(AXIS_MARGIN - 6, px), (AXIS_MARGIN, px)], fill=0, width=2)
+        lbl_img  = Image.new("L", (72, 18), color=255)
+        lbl_draw = ImageDraw.Draw(lbl_img)
+        lbl_draw.text((2, 2), label, fill=0, font=font)
+        img.paste(lbl_img.rotate(90, expand=True), (AXIS_MARGIN - 36, px - 9))
 
-    # --- Heart rate label ---
+    # HR label
     if heart_rate:
-        hr_img  = Image.new("L", (120, 20), color=255)
+        hr_img  = Image.new("L", (130, 18), color=255)
         hr_draw = ImageDraw.Draw(hr_img)
-        hr_draw.text((0, 2), f"HR: {heart_rate} BPM", fill=0, font=font)
-        img.paste(hr_img, (AXIS_MARGIN + 10, 10))
+        hr_draw.text((2, 2), f"HR: {heart_rate} BPM", fill=0, font=font)
+        img.paste(hr_img, (AXIS_MARGIN + 8, 8))
 
-    # Floyd-Steinberg dithering preserves fine grid + smooth trace
+    # Speed legend
+    leg_img  = Image.new("L", (160, 18), color=255)
+    leg_draw = ImageDraw.Draw(leg_img)
+    leg_draw.text((2, 2), "25 mm/s  |  10 mm/mV", fill=0, font=font)
+    img.paste(leg_img, (AXIS_MARGIN + 8, 28))
+
+    # 1 mV calibration pulse
+    cal_x = AXIS_MARGIN + 6
+    cal_y0 = center_y
+    cal_h  = amplitude
+    draw.line([(cal_y0,        cal_x),      (cal_y0,        cal_x + 20)], fill=0, width=3)
+    draw.line([(cal_y0,        cal_x + 20), (cal_y0 - cal_h, cal_x + 20)], fill=0, width=3)
+    draw.line([(cal_y0 - cal_h, cal_x + 20), (cal_y0 - cal_h, cal_x + 50)], fill=0, width=3)
+    draw.line([(cal_y0 - cal_h, cal_x + 50), (cal_y0,        cal_x + 50)], fill=0, width=3)
+
     return img.convert("1", dither=Image.Dither.FLOYDSTEINBERG)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 4. STANDALONE ECG STRIP
+# ─────────────────────────────────────────────────────────────────────────────
 def print_ecg_strip_standalone(wave_points=None, heart_rate=None, diagnosis=None) -> bool:
     logger.info(f"Print ECG strip: hr={heart_rate}, points={len(wave_points) if wave_points else 0}")
     p = _get_printer()
@@ -333,48 +509,47 @@ def print_ecg_strip_standalone(wave_points=None, heart_rate=None, diagnosis=None
     try:
         p.hw("INIT")
 
-        # Header
+        _double_rule(p)
+        _blank(p)
         p.set(align="center", bold=True, double_height=True)
-        p.text("DR. HORRIA\n")
-        p.set(align="center", bold=False, double_height=False)
-        p.text("AUTOMATED ECG MONITOR\n")
-        p.set(align="left")
-        p.text("================================\n")
-        p.text(f"Date   : {now.strftime('%d/%m/%Y')}\n")
-        p.text(f"Time   : {now.strftime('%H:%M:%S')}\n")
-        if heart_rate:
-            p.text(f"HR     : {heart_rate} BPM\n")
-        if diagnosis:
-            p.text(f"Result : {diagnosis}\n")
-        p.text("--------------------------------\n\n")
+        _ln(p, "DR. HORRIA")
+        p.set(double_height=False, bold=False)
+        p.set(align="center")
+        _ln(p, "AUTOMATED ECG MONITOR")
+        _ln(p, "Horus University  |  Eng. Faculty")
+        _blank(p)
+        _double_rule(p)
 
-        # ECG image
+        p.set(align="left")
+        _blank(p)
+        _dot_row(p, "Date",       now.strftime("%d / %m / %Y"))
+        _dot_row(p, "Time",       now.strftime("%H : %M : %S"))
+        if heart_rate:
+            _dot_row(p, "Heart Rate", f"{heart_rate} BPM")
+        if diagnosis:
+            _dot_row(p, "Result",     diagnosis)
+        _blank(p)
+        _thin_rule(p)
+        _blank(p)
+
         img = _generate_ecg_image(wave_points, heart_rate)
         p.image(img, high_density_vertical=True,
                 high_density_horizontal=True, impl="bitImageRaster")
+        _blank(p)
 
-        # Technical footer
-        p.set(align="left", bold=False)
-        p.text("\n--------------------------------\n")
-        p.text("Parameters:\n")
-        p.text("  Samples  : 2000 interpolated\n")
-        p.text("  Filter   : Cubic Spline ON\n")
-        p.text("  Speed    : 25 mm/s\n")
-        p.text("  Grid     : 1mm x 1mm\n")
-        p.text("--------------------------------\n")
-        p.set(align="center", bold=False)
-        p.text("This ECG is generated by\n")
-        p.text("Dr. Horria AI System.\n")
-        p.text("Does NOT replace a professional\n")
-        p.text("medical diagnosis.\n")
-        report_id = now.strftime("ECG-%Y%m%d-%H%M%S")
-        p.text(f"\nReport ID: {report_id}\n")
-        p.set(align="center", bold=True)
-        p.text("\nDr. Horria\n")
-        p.set(bold=False)
-        p.text("\n\n\n\n\n")
-        p.cut()
+        _section_title(p, "ACQUISITION PARAMETERS")
+        _dot_row(p, "Samples",     "2000 interpolated")
+        _dot_row(p, "Filter",      "Cubic Spline")
+        _dot_row(p, "Paper Speed", "25 mm / s")
+        _dot_row(p, "Amplitude",   "10 mm / mV")
+        _dot_row(p, "Grid",        "1 mm x 1 mm")
+        _blank(p)
+
+        _print_footer(p, report_prefix="ECG")
         return True
+
     except Exception as e:
         logger.error(f"print_ecg_strip error: {e}")
         return False
+    finally:
+        _close_printer(p)

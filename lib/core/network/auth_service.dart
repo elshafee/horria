@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'api_config.dart';
 
 /// Represents the result of an authentication operation (e.g. signup).
 class AuthResult {
@@ -35,7 +36,7 @@ class AuthService {
   final String baseUrl;
 
   AuthService({
-    this.baseUrl = 'http://192.168.1.9:8000',
+    this.baseUrl = ApiConfig.baseUrl,
   });
 
   /// Signs up a new user with their personal info, face image, and medical history.

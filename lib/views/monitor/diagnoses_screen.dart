@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../lepu_service.dart';
+import '../../core/network/api_config.dart';
 import '../measurements/measurement_layout.dart';
 
 class DiagnosesScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _DiagnosesScreenState extends State<DiagnosesScreen> {
     setState(() => _statusMessage = "جاري الاتصال بالخادم...");
     try {
       // Connecting to the physical orchestrator
-      final wsUrl = "ws://192.168.1.9:8000/ws/session_diag_123/1";
+      final wsUrl = "${ApiConfig.wsUrl}/ws/session_diag_123/1";
       _socket = await WebSocket.connect(wsUrl);
       
       setState(() {

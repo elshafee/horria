@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'api_config.dart';
 
 /// Represents the result from the backend face verification endpoint.
 class AuthResult {
@@ -39,7 +40,7 @@ class FaceAuthService {
 
   FaceAuthService({
     // Pointing to the physical mini-PC orchestrator
-    this.baseUrl = 'http://192.168.1.9:8000',
+    this.baseUrl = ApiConfig.baseUrl,
   });
 
   /// Transmits image bytes to the backend `/api/auth/face` endpoint for verification.

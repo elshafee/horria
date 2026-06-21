@@ -228,25 +228,40 @@ def get_vitals_history(user_id, limit=20):
 def get_vitals_by_session(session_id):
     import json
     conn = get_db_connection()
-    row = conn.execute("""
+    rows = conn.execute("""
         SELECT hr, spo2, sys, dia, temp, is_critical, ecg_wave, timestamp 
         FROM vitals 
         WHERE session_id = ? 
-        ORDER BY timestamp DESC 
-        LIMIT 1
-    """, (session_id,)).fetchone()
+        ORDER BY timestamp ASC 
+    """, (session_id,)).fetchall()
     conn.close()
     
-    if not row:
+    if not rows:
         return None
         
-    row_dict = dict(row)
-    if row_dict.get('ecg_wave'):
-        try:
-            row_dict['ecg_wave'] = json.loads(row_dict['ecg_wave'])
-        except:
-            row_dict['ecg_wave'] = None
-    return row_dict
+    # Aggregate by keeping the most recent non-null value for each field
+    aggregated = {
+        'hr': None, 'spo2': None, 'sys': None, 'dia': None, 
+        'temp': None, 'is_critical': 0, 'ecg_wave': None, 'timestamp': None
+    }
+    
+    for row in rows:
+        row_dict = dict(row)
+        for key in ['hr', 'spo2', 'sys', 'dia', 'temp', 'timestamp']:
+            if row_dict.get(key) is not None:
+                aggregated[key] = row_dict[key]
+                
+        # Mark critical if ANY measurement in the session was critical
+        if row_dict.get('is_critical'):
+            aggregated['is_critical'] = 1
+            
+        if row_dict.get('ecg_wave'):
+            try:
+                aggregated['ecg_wave'] = json.loads(row_dict['ecg_wave'])
+            except:
+                pass
+                
+    return aggregated
 
 def save_lab_result(user_id, session_id, test_name, value, flag):
     conn = get_db_connection()
