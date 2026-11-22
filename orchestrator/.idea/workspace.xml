@@ -5,34 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5211b4e2-5ab1-4cb9-95f7-333a9488fef1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../lib/core/network/api_config.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testprint.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/.filecache" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/.filecache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/app.dill" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/app.dill" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/debug_android_application.stamp" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/debug_android_application.stamp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/flutter_assets.d" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/flutter_assets.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/kernel_snapshot_program.d" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/kernel_snapshot_program.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/kernel_snapshot_program.stamp" beforeDir="false" afterPath="$PROJECT_DIR$/../.dart_tool/flutter_build/52e5ed303c6a3015ba563842721966dd/kernel_snapshot_program.stamp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/core/network/auth_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/core/network/auth_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/core/network/face_auth_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/core/network/face_auth_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/core/network/user_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/core/network/user_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/core/network/vitals_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/core/network/vitals_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/views/diagnosis/ai_interview_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/diagnosis/ai_interview_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/views/diagnosis/diagnosis_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/diagnosis/diagnosis_home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/views/diagnosis/diagnosis_loading_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/diagnosis/diagnosis_loading_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/views/measurements/measurement_instruction_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/measurements/measurement_instruction_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/views/measurements/measurement_measuring_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/measurements/measurement_measuring_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/views/measurements/measurement_popup_dialog.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/measurements/measurement_popup_dialog.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lib/views/monitor/diagnoses_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/views/monitor/diagnoses_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/llm_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/llm_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printer.py" beforeDir="false" afterPath="$PROJECT_DIR$/printer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prompts.py" beforeDir="false" afterPath="$PROJECT_DIR$/prompts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tts.py" beforeDir="false" afterPath="$PROJECT_DIR$/tts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +108,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;flutter__version&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/ahmadkhaled/Documents/GitHub/horria/orchestrator&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -143,7 +117,31 @@
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
 }</component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.main">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="orchestrator" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="tts" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="orchestrator" />
       <option name="ENV_FILES" value="" />
@@ -188,5 +186,16 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>8</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

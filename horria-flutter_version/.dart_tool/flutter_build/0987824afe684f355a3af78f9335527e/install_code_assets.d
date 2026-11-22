@@ -1,0 +1,1 @@
+ /Users/ahmadkhaled/Downloads/horria-flutter_version/.dart_tool/flutter_build/0987824afe684f355a3af78f9335527e/native_assets.json: 

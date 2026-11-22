@@ -1,0 +1,35 @@
+# Dr. Horria Orchestrator — Python Dependencies
+#
+# Core API framework
+fastapi>=0.100.0
+uvicorn>=0.22.0
+websockets>=11.0.3
+pydantic>=2.0
+pydantic-settings>=2.0
+
+# HTTP client (NIM API calls)
+requests>=2.28.0
+
+# Database
+# sqlite3 is part of the Python standard library — no extra install needed
+
+# Hardware & I/O
+numpy>=1.20.0
+paho-mqtt>=1.6.0          # LED matrix control via MQTT
+pyserial>=3.5             # Serial port (ECG / sensor comms)
+
+# Authentication
+setuptools<82                 # Required for pkg_resources used by face_recognition_models
+face_recognition>=1.3.0   # dlib-based face embedding
+Pillow>=9.0.0
+
+# Speech
+SpeechRecognition>=3.10.4 # STT via Google API
+edge-tts>=7.3.1           # TTS via Microsoft Edge (7.3.1+ fixes 403 Sec-MS-GEC handshake)
+qalsadi>=0.3.7            # Arabic diacritics (tashkeel) for TTS
+pyarabic>=0.6.14          # Arabic text utilities
+
+# Printing
+python-escpos>=3.0
+matplotlib>=3.5.0         # ECG waveform rendering for printer
+scipy>=1.10.0             # CubicSpline interpolation for ECG waves

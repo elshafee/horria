@@ -1,0 +1,160 @@
+Here is the complete, compiled profile for **Dr. Horria** with all your updates integrated. The English version is structured for high-level business and institutional presentations, while the Arabic version maintains a highly polished, professional Egyptian business tone.
+
+---
+
+# Dr. Horria
+
+### Horus Oriented Robot for Reception and Intelligent Assessment
+
+![Dr. Horria Robot](dr_horria_robot.jpg)
+
+## ✦ Where Clinical Intelligence Meets Physical Medical Care ✦
+
+> *"Dr. Horria is not software or a chatbot. She is a fully physical, clinical-grade medical robot—serving as your patient's first, smartest, and most reassuring point of contact."*
+
+---
+
+### The Executive Challenge We Resolve
+
+Every day, healthcare facilities face critical bottlenecks at triage. Patients enter clinics experiencing high anxiety and uncertainty, unsure of where to go or which preliminary tests are urgent. Frontline medical staff are consistently overextended, waiting rooms face operational chaos, and vital baseline clinical data can easily be omitted before a physician's consultation.
+
+**Dr. Horria reengineers the entire reception experience—before the physician even steps into the room.**
+
+### Who is Dr. Horria?
+
+Dr. Horria is an autonomous, physical medical robot engineered for professional clinical environments. She seamlessly integrates an advanced AI reasoning core with heavy-duty diagnostic hardware to automate the frontlines of patient care. She welcomes patients, physically captures medical-grade vital signs, analyzes clinical profiles, and intelligently routes individuals to the correct medical department.
+
+By the time the physician receives the patient, Dr. Horria has already compiled and delivered a comprehensive, verified clinical briefing.
+
+* **She is a physical hardware robot,** equipped with clinical sensors, automated scanners, and an industrial thermal printing bay.
+* **She is not a chatbot or a basic tablet kiosk.**
+* **She is a premium medical-grade robotic assistant** built to handle high-throughput, real-world clinical workflows.
+
+---
+
+## 🧠 Core Functional Capabilities
+
+* **On-Device Agentic AI (Zero Hallucinations):** Driven by a specialized Retrieval-Augmented Generation (RAG) architecture built strictly upon official **American Heart Association (AHA)** clinical guidelines. Every operational decision she makes is anchored in verified evidence—completely eliminating speculative advice.
+* **Autonomous Triage & Clinical Routing:** Dr. Horria acts as a fully automated triage officer. By continuously cross-referencing live vitals, patient-reported symptoms, and medical history, she dynamically assigns patients to the exact specialty clinic required, optimizing hospital resource allocation.
+* **Integrated Hardware Diagnostics:** She features a professional, built-in diagnostic suite powered by the **Lepu PC-303 Medical Grade Telehealth Portable All-in-One Vital Signs Monitor**—an internationally trusted telemedicine and remote patient monitoring solution. Dr. Horria tracks critical parameters via high-fidelity hardware modules:
+  * Real-time ECG Waveform Analysis
+  * SpO₂ (Blood Oxygen Saturation) — Precision Accuracy: ±2%
+  * Heart Rate & Perfusion Index (PI)
+  * NIBP Blood Pressure — Precision Accuracy: ±3 mmHg
+  * Contactless Body Temperature Sensor
+
+* **Document Intelligence & Ingestion:** Outfitted with an integrated physical A4 scanner. Patients can instantly feed historical lab reports or radiology results directly into Dr. Horria. She reads, interprets, and appends the extracted data directly to the active session.
+* **Proactive Clinical Diagnostics:** If her diagnostic core identifies missing critical data markers, she autonomously initiates specific laboratory requests and prints an official order slip on the spot via her integrated thermal printer.
+* **100% Offline Architecture (Air-Gapped Privacy):** To meet strict institutional data compliance frameworks, all LLM models operate locally on her physical internal hardware. She demands zero cloud connectivity, ensuring absolute data security and uninterrupted service in remote or high-security facilities.
+* **Automated Physician Notifications:** Upon session completion, she instantly compiles a professional, structured PDF report—complete with clean ECG strips, verified vitals, and triage insights—delivering it directly to the attending physician via secure WhatsApp integration.
+* **Biometric Authentication:** Incorporates a high-speed facial recognition camera system. Returning patients are identified securely within seconds, allowing her to pull historical medical records instantly without manual paperwork or ID cards.
+
+---
+
+## 📊 Precision & Compliance Diagnostics
+
+| Diagnostic Metric | Physical Sensor Accuracy | AI Core Clinical Standard | Regulatory Approvals |
+| --- | --- | --- | --- |
+| **Blood Oxygen (SpO₂)** | ±2% | American Heart Association (AHA) | **FDA Approved / CE Certified** |
+| **Blood Pressure (NIBP)** | ±3 mmHg | American Heart Association (AHA) | **FDA Approved / CE Certified** |
+| **Pulse / Heart Rate** | ±2 bpm | American Heart Association (AHA) | **FDA Approved / CE Certified** |
+
+*By pairing the regulatory-approved **Lepu PC-303** diagnostic hardware with an AHA-grounded reasoning layer, Dr. Horria entirely eliminates medical data fabrication.*
+
+---
+
+## 🏥 Targeted Deployments
+
+* Smart Hospitals & High-Volume Polyclinics
+* Corporate & Occupational Health Centers
+* Institutional Triage Zones & Emergency Department Reception
+* National Rural Healthcare Initiatives & Telehealth Hubs
+
+---
+
+> ### The Bottom Line
+> 
+> The future of medicine isn't about replacing the physician—it is about ensuring that every single patient arrives at the examination room fully diagnosed, stabilized, and **completely understood.**
+
+**Dr. Horria** — Intelligent by design. Clinical by standard. Physical by definition.
+
+📩 *Contact our enterprise engineering team to schedule an on-site hardware demonstration.*
+
+---
+
+---
+
+# الدكتورة حورية (Dr. Horria)
+
+### الروبوت الطبي المتكامل للاستقبال والتقييم السريري الذكي
+
+## ✦ أول روبوت مادي ذكي مخصص للرعاية الطبية المتقدمة ✦
+
+> *"الدكتورة حورية مش مجرد سوفت وير أو شات بوت.. دي روبوت مادي متكامل (Hardware) مجهز بأحدث المستشعرات الطبية، لتكون نقطة التواصل الأولى والأذكى والأكثر أماناً لمريضك."*
+
+---
+
+### التحدي التشغيلي اللي بنحله
+
+كل يوم، المستشفيات والعيادات بتواجه ضغط كبير جداً في مرحلة الاستقبال والفرز (Triage). المريض بيدخل وهو في حالة قلق ومش عارف يتوجه لأي عيادة، أو إيه الفحوصات المبدئية اللي حالته بتستدعيها. في نفس الوقت، الأطقم الطبية بتشتغل فوق طاقتها، وده ممكن يتسبب في تكدس غرف الانتظار وضياع بيانات حيوية ومهمة للمريض قبل حتى ما يقابل الطبيب المعالج.
+
+**الدكتورة حورية بتغير المعادلة دي تماماً.. وبتبدأ رعاية مريضك قبل ما الطبيب يشوفه.**
+
+### مين هي الدكتورة حورية؟
+
+الدكتورة حورية هي روبوت طبي مادي (Physical Robot) ومستقل، مصممة بأعلى المعايير السريرية لخدمة الصفوف الأمامية في المؤسسات الطبية. هي بتجمع بين الذكاء الاصطناعي المتقدم والـ Hardware الطبي المعتمد؛ عشان تستقبل المرضى، وتقيس علاماتهم الحيوية بشكل مادي ملموس، وبتحلل حالتهم وتوجّههم فوراً للعيادة التخصصية الصح.
+
+وعلى ما المريض بيدخل أوضّة الكشف، الدكتورة حورية بتكون سلّمت الطبيب تقرير طبي وافي وموثق بالكامل.
+
+* **روبوت مادي متكامل:** مش مجرد شاشة تابلت؛ دي جهاز ميكانيكي وطبي متطور، مجهز بمستشعرات حيوية، وماسح ضوئي، وطابعة حرارية داخلية.
+* **منظومة طبية احترافية:** مش برنامج دردشة عام، ده نظام ذكي مصمم للتعامل مع بيئات العمل الطبية الحقيقية وسريعة الإيقاع.
+
+---
+
+## 🧠 القدرات التشغيلية والـ Hardware
+
+* **ذكاء اصطناعي موثوق (بدون احتمالية للخطأ):** الروبوت بتشتغل بنظام RAG (التوليد المعزز بالاسترجاع) المتصل حصرياً بالبروتوكولات والإرشادات الرسمية لـ **جمعية القلب الأمريكية (AHA)**. كل قرار أو تحليل طبي صادر منها مبني على أدلة علمية واضحة وموثقة.
+* **منظومة الفرز والفرز التلقائي (Triage):** بتشتغل كموظف استقبال وفرز طبي مستقل تماماً. من خلال تحليل المؤشرات الحيوية والأعراض الحالية للمريض لحظة بلحظة، بتوجهه ديناميكياً للقسم أو العيادة المظبوطة؛ وده بيمنع تماماً التوجيه الخاطئ ويوفر وقت المنشأة.
+* **قياس المؤشرات الحيوية بدقة سريرية:** الروبوت مجهزة بجهاز الفحص الشامل المدمج **Lepu PC-303 Medical Grade Telehealth Portable All-in-One Vital Signs Monitor**، والمخصص لحلول الطب عن بُعد ومراقبة المرضى الرقمية. الجهاز حاصل على **اعتماد هيئة الغذاء والدواء الأمريكية (FDA) وشهادة المطابقة الأوروبية (CE)**، وبيوفر لوحة تحكم فورية تشمل:
+  * تحليل ورسم مادي لكهربية القلب (ECG Waveform)
+  * نسبة تشبع الأكسجين في الدم (SpO₂) — بدقة تبلغ ±2%
+  * قياس نبضات القلب ومؤشر التروية (PI)
+  * ضغط الدم غير التدخلي (NIBP) — بدقة تبلغ ±3 mmHg
+  * قياس درجة حرارة الجسم عن بُعد
+
+* **قراءة المستندات الطبية وفحصها:** مدمج في جسم الروبوت ماسح ضوئي (A4 Scanner) عالي السرعة. المريض بيقدر يقدم لها تقارير المختبر أو الأشعة السابقة، وهي بتقرأها فوراً، وبتفهمها، وبتدمجها تلقائياً في ملف التقييم الحالي.
+* **التشخيص الاستباقي وطباعة الطلبات:** لو الدكتورة حورية شافت إن حالة المريض محتاجة فحوصات دم أو تحاليل معينة فورية عشان تشخيص الطبيب يكمل، بتطلب الفحوصات دي تلقائياً وتطبع للمريض ورقة الطلب فوراً من خلال الطابعة الحرارية المدمجة فيها.
+* **أمان كامل وتشغيل بدون إنترنت (Offline بنسبة 100%):** حفاظاً على خصوصية بيانات المرضى، جميع النماذج والبيانات بتشتغل محلياً (On-device) على الهاردوير الداخلي للروبوت. مش بتحتاج أي اتصال سحابي (Cloud)، مما يضمن إن البيانات مش بتخرج بره المستشفى نهائي، وبيخليها مثالية للمستشفيات عالية التأمين أو المناطق النائية.
+* **إرسال التقارير الفورية عبر الواتساب:** أول ما الجلسة بتنتهي، الروبوت بتبعت ملف PDF احترافي ومنظم—فيه العلامات الحيوية، ورسم القلب، والتقييم الذكي—مباشرة على واتساب الطبيب المعالج أو أهل المريض.
+* **التعرف البيومتري على الوجه:** الدكتورة حورية بتقدر تتعرف على المرضى بلمح البصر من خلال كاميرا التعرف على الوجه المدمجة. مفيش حاجة لبطاقات أو أوراق؛ المريض أول ما بيقف قدامها بتعرفه وتستقبل ملفه الطبي فوراً.
+
+---
+
+## 📊 معايير الدقة والامتثال الطبي
+
+| المؤشر الحيوي | دقة المستشعر المادي | المرجعية الطبية لنظام الـ AI | الاعتمادات الدولية للـ Hardware |
+| --- | --- | --- | --- |
+| **نسبة الأكسجين (SpO₂)** | ±2% | جمعية القلب الأمريكية (AHA) | **حاصل على اعتماد FDA وشهادة CE** |
+| **ضغط الدم (NIBP)** | ±3 mmHg | جمعية القلب الأمريكية (AHA) | **حاصل على اعتماد FDA وشهادة CE** |
+| **معدل ضربات القلب** | ±2 bpm | جمعية القلب الأمريكية (AHA) | **حاصل على اعتماد FDA وشهادة CE** |
+
+*التكامل بين جهاز **Lepu PC-303** المعتمد دولياً وطبقة الاستدلال الذكي المبنية على بروتوكولات AHA، بيضمن إن كل القراءات والتحليلات الطبية دقيقة وموثوقة بنسبة 100%.*
+
+---
+
+## 🏥 أماكن التشغيل المستهدفة
+
+* المستشفيات الذكية والمراكز الطبية الكبرى (Polyclinics).
+* العيادات والمراكز الصحية داخل الشركات والمؤسسات الكبيرة.
+* مناطق الفرز والاستقبال في أقسام الطوارئ.
+* الوحدات الصحية والمبادرات القومية للرعاية الصحية في المناطق النائية.
+
+---
+
+> ### باختصار
+> 
+> مستقبل الرعاية الصحية مش جاي عشان يستبدل الدكتور، بل جاي عشان يضمن إن المريض يدخل عيادة الدكتور وهو **جاهز، ومفحوص، ومفهوم تشخيصه مسبقاً.**
+
+**الدكتورة حورية** — ذكاء في التصميم. دقة في المعايير. كفاءة على أرض الواقع.
+
+📩 *تواصل معنا الآن لتنسيق زيارة ومعاينة الروبوت المادي ومناقشة سبل التشغيل.*
